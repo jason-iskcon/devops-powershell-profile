@@ -1,0 +1,26 @@
+# PowerShell Profile
+*.log
+.alias-usage.log
+aliases-anki.csv
+
+# Backup files
+*.backup.*
+*.bak
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test artifacts
+TestResults/
+*.test.xml
+
