@@ -1,0 +1,788 @@
+k	
+ka	apply --recursive -f
+kak	apply -k
+kd	describe
+kdaa	describe --all-namespaces
+kdc	describe configmap
+kdcaa	describe configmap --all-namespaces
+kdcl	describe configmap -l
+kdcn	describe configmap --namespace
+kdde	describe deployment
+kddeaa	describe deployment --all-namespaces
+kddel	describe deployment -l
+kdden	describe deployment --namespace
+kdf	describe --recursive -f
+kdi	describe ingress
+kdiaa	describe ingress --all-namespaces
+kdil	describe ingress -l
+kdin	describe ingress --namespace
+kdl	describe -l
+kdn	describe namespaces
+kdnaa	describe namespaces --all-namespaces
+kdnl	describe namespaces -l
+kdno	describe nodes
+kdnol	describe nodes -l
+kdp	describe pods
+kdpaa	describe pods --all-namespaces
+kdpl	describe pods -l
+kdpn	describe pods --namespace
+kdse	describe secret
+kdseaa	describe secret --all-namespaces
+kdsel	describe secret -l
+kdsen	describe secret --namespace
+kdsv	describe service
+kdsvaa	describe service --all-namespaces
+kdsvl	describe service -l
+kdsvn	describe service --namespace
+ke	exec -i -t
+ken	exec -i -t --namespace
+kg	get
+kgaa	get --all-namespaces
+kgaaojson	get --all-namespaces -o=json
+kgaaosl	get --all-namespaces -o=wide --show-labels
+kgaaowide	get --all-namespaces -o=wide
+kgaaoyaml	get --all-namespaces -o=yaml
+kgaasl	get --all-namespaces --show-labels
+kgaaslo	get --all-namespaces --show-labels -o=wide
+kgaaslw	get --all-namespaces --show-labels --watch
+kgaaslwo	get --all-namespaces --show-labels --watch -o=wide
+kgaaw	get --all-namespaces --watch
+kgaawj	get --all-namespaces --watch -o=json
+kgaawo	get --all-namespaces --watch -o=wide
+kgaawosl	get --all-namespaces --watch -o=wide --show-labels
+kgaawsl	get --all-namespaces --watch --show-labels
+kgaawslo	get --all-namespaces --watch --show-labels -o=wide
+kgaawy	get --all-namespaces --watch -o=yaml
+kgc	get configmap
+kgcaa	get configmap --all-namespaces
+kgcaaojson	get configmap --all-namespaces -o=json
+kgcaaowide	get configmap --all-namespaces -o=wide
+kgcaaoyaml	get configmap --all-namespaces -o=yaml
+kgcaaw	get configmap --all-namespaces --watch
+kgcaawj	get configmap --all-namespaces --watch -o=json
+kgcaawo	get configmap --all-namespaces --watch -o=wide
+kgcaawy	get configmap --all-namespaces --watch -o=yaml
+kgcj	get configmap -o=json
+kgcjall	get configmap -o=json --all-namespaces
+kgcjl	get configmap -o=json -l
+kgcjn	get configmap -o=json --namespace
+kgcl	get configmap -l
+kgcn	get configmap --namespace
+kgco	get configmap -o=wide
+kgcoall	get configmap -o=wide --all-namespaces
+kgcol	get configmap -o=wide -l
+kgcon	get configmap -o=wide --namespace
+kgcw	get configmap --watch
+kgcwaaj	get configmap --watch --all-namespaces -o=json
+kgcwaao	get configmap --watch --all-namespaces -o=wide
+kgcwaay	get configmap --watch --all-namespaces -o=yaml
+kgcwall	get configmap --watch --all-namespaces
+kgcwj	get configmap --watch -o=json
+kgcwjall	get configmap --watch -o=json --all-namespaces
+kgcwjl	get configmap --watch -o=json -l
+kgcwjn	get configmap --watch -o=json --namespace
+kgcwl	get configmap --watch -l
+kgcwn	get configmap --watch --namespace
+kgcwo	get configmap --watch -o=wide
+kgcwoall	get configmap --watch -o=wide --all-namespaces
+kgcwol	get configmap --watch -o=wide -l
+kgcwon	get configmap --watch -o=wide --namespace
+kgcwy	get configmap --watch -o=yaml
+kgcwyall	get configmap --watch -o=yaml --all-namespaces
+kgcwyl	get configmap --watch -o=yaml -l
+kgcwyn	get configmap --watch -o=yaml --namespace
+kgcy	get configmap -o=yaml
+kgcyall	get configmap -o=yaml --all-namespaces
+kgcyl	get configmap -o=yaml -l
+kgcyn	get configmap -o=yaml --namespace
+kgde	get deployment
+kgdeaa	get deployment --all-namespaces
+kgdeaaojson	get deployment --all-namespaces -o=json
+kgdeaaosl	get deployment --all-namespaces -o=wide --show-labels
+kgdeaaowide	get deployment --all-namespaces -o=wide
+kgdeaaoyaml	get deployment --all-namespaces -o=yaml
+kgdeaasl	get deployment --all-namespaces --show-labels
+kgdeaaslo	get deployment --all-namespaces --show-labels -o=wide
+kgdeaaslw	get deployment --all-namespaces --show-labels --watch
+kgdeaaslwo	get deployment --all-namespaces --show-labels --watch -o=wide
+kgdeaaw	get deployment --all-namespaces --watch
+kgdeaawj	get deployment --all-namespaces --watch -o=json
+kgdeaawo	get deployment --all-namespaces --watch -o=wide
+kgdeaawosl	get deployment --all-namespaces --watch -o=wide --show-labels
+kgdeaawsl	get deployment --all-namespaces --watch --show-labels
+kgdeaawslo	get deployment --all-namespaces --watch --show-labels -o=wide
+kgdeaawy	get deployment --all-namespaces --watch -o=yaml
+kgdej	get deployment -o=json
+kgdejall	get deployment -o=json --all-namespaces
+kgdejl	get deployment -o=json -l
+kgdejn	get deployment -o=json --namespace
+kgdel	get deployment -l
+kgden	get deployment --namespace
+kgdeo	get deployment -o=wide
+kgdeoall	get deployment -o=wide --all-namespaces
+kgdeoallsl	get deployment -o=wide --all-namespaces --show-labels
+kgdeol	get deployment -o=wide -l
+kgdeon	get deployment -o=wide --namespace
+kgdeosl	get deployment -o=wide --show-labels
+kgdeoslall	get deployment -o=wide --show-labels --all-namespaces
+kgdeosll	get deployment -o=wide --show-labels -l
+kgdeosln	get deployment -o=wide --show-labels --namespace
+kgdesl	get deployment --show-labels
+kgdeslaao	get deployment --show-labels --all-namespaces -o=wide
+kgdeslall	get deployment --show-labels --all-namespaces
+kgdeslallw	get deployment --show-labels --all-namespaces --watch
+kgdeslallwo	get deployment --show-labels --all-namespaces --watch -o=wide
+kgdesll	get deployment --show-labels -l
+kgdesln	get deployment --show-labels --namespace
+kgdeslo	get deployment --show-labels -o=wide
+kgdesloaa	get deployment --show-labels -o=wide --all-namespaces
+kgdeslol	get deployment --show-labels -o=wide -l
+kgdeslon	get deployment --show-labels -o=wide --namespace
+kgdeslw	get deployment --show-labels --watch
+kgdeslwaao	get deployment --show-labels --watch --all-namespaces -o=wide
+kgdeslwall	get deployment --show-labels --watch --all-namespaces
+kgdeslwl	get deployment --show-labels --watch -l
+kgdeslwn	get deployment --show-labels --watch --namespace
+kgdeslwo	get deployment --show-labels --watch -o=wide
+kgdeslwoall	get deployment --show-labels --watch -o=wide --all-namespaces
+kgdeslwol	get deployment --show-labels --watch -o=wide -l
+kgdeslwon	get deployment --show-labels --watch -o=wide --namespace
+kgdew	get deployment --watch
+kgdewaaj	get deployment --watch --all-namespaces -o=json
+kgdewaao	get deployment --watch --all-namespaces -o=wide
+kgdewaaosl	get deployment --watch --all-namespaces -o=wide --show-labels
+kgdewaay	get deployment --watch --all-namespaces -o=yaml
+kgdewall	get deployment --watch --all-namespaces
+kgdewallsl	get deployment --watch --all-namespaces --show-labels
+kgdewallslo	get deployment --watch --all-namespaces --show-labels -o=wide
+kgdewj	get deployment --watch -o=json
+kgdewjall	get deployment --watch -o=json --all-namespaces
+kgdewjl	get deployment --watch -o=json -l
+kgdewjn	get deployment --watch -o=json --namespace
+kgdewl	get deployment --watch -l
+kgdewn	get deployment --watch --namespace
+kgdewo	get deployment --watch -o=wide
+kgdewoall	get deployment --watch -o=wide --all-namespaces
+kgdewoallsl	get deployment --watch -o=wide --all-namespaces --show-labels
+kgdewol	get deployment --watch -o=wide -l
+kgdewon	get deployment --watch -o=wide --namespace
+kgdewosl	get deployment --watch -o=wide --show-labels
+kgdewoslall	get deployment --watch -o=wide --show-labels --all-namespaces
+kgdewosll	get deployment --watch -o=wide --show-labels -l
+kgdewosln	get deployment --watch -o=wide --show-labels --namespace
+kgdewsl	get deployment --watch --show-labels
+kgdewslaao	get deployment --watch --show-labels --all-namespaces -o=wide
+kgdewslall	get deployment --watch --show-labels --all-namespaces
+kgdewsll	get deployment --watch --show-labels -l
+kgdewsln	get deployment --watch --show-labels --namespace
+kgdewslo	get deployment --watch --show-labels -o=wide
+kgdewsloaa	get deployment --watch --show-labels -o=wide --all-namespaces
+kgdewslol	get deployment --watch --show-labels -o=wide -l
+kgdewslon	get deployment --watch --show-labels -o=wide --namespace
+kgdewy	get deployment --watch -o=yaml
+kgdewyall	get deployment --watch -o=yaml --all-namespaces
+kgdewyl	get deployment --watch -o=yaml -l
+kgdewyn	get deployment --watch -o=yaml --namespace
+kgdey	get deployment -o=yaml
+kgdeyall	get deployment -o=yaml --all-namespaces
+kgdeyl	get deployment -o=yaml -l
+kgdeyn	get deployment -o=yaml --namespace
+kgf	get --recursive -f
+kgi	get ingress
+kgiaa	get ingress --all-namespaces
+kgiaaojson	get ingress --all-namespaces -o=json
+kgiaaowide	get ingress --all-namespaces -o=wide
+kgiaaoyaml	get ingress --all-namespaces -o=yaml
+kgiaaw	get ingress --all-namespaces --watch
+kgiaawj	get ingress --all-namespaces --watch -o=json
+kgiaawo	get ingress --all-namespaces --watch -o=wide
+kgiaawy	get ingress --all-namespaces --watch -o=yaml
+kgij	get ingress -o=json
+kgijall	get ingress -o=json --all-namespaces
+kgijl	get ingress -o=json -l
+kgijn	get ingress -o=json --namespace
+kgil	get ingress -l
+kgin	get ingress --namespace
+kgio	get ingress -o=wide
+kgioall	get ingress -o=wide --all-namespaces
+kgiol	get ingress -o=wide -l
+kgion	get ingress -o=wide --namespace
+kgiw	get ingress --watch
+kgiwaaj	get ingress --watch --all-namespaces -o=json
+kgiwaao	get ingress --watch --all-namespaces -o=wide
+kgiwaay	get ingress --watch --all-namespaces -o=yaml
+kgiwall	get ingress --watch --all-namespaces
+kgiwj	get ingress --watch -o=json
+kgiwjall	get ingress --watch -o=json --all-namespaces
+kgiwjl	get ingress --watch -o=json -l
+kgiwjn	get ingress --watch -o=json --namespace
+kgiwl	get ingress --watch -l
+kgiwn	get ingress --watch --namespace
+kgiwo	get ingress --watch -o=wide
+kgiwoall	get ingress --watch -o=wide --all-namespaces
+kgiwol	get ingress --watch -o=wide -l
+kgiwon	get ingress --watch -o=wide --namespace
+kgiwy	get ingress --watch -o=yaml
+kgiwyall	get ingress --watch -o=yaml --all-namespaces
+kgiwyl	get ingress --watch -o=yaml -l
+kgiwyn	get ingress --watch -o=yaml --namespace
+kgiy	get ingress -o=yaml
+kgiyall	get ingress -o=yaml --all-namespaces
+kgiyl	get ingress -o=yaml -l
+kgiyn	get ingress -o=yaml --namespace
+kgj	get -o=json
+kgjall	get -o=json --all-namespaces
+kgjf	get -o=json --recursive -f
+kgjl	get -o=json -l
+kgjn	get -o=json --namespace
+kgl	get -l
+kgn	get namespaces
+kgnaa	get namespaces --all-namespaces
+kgnaaojson	get namespaces --all-namespaces -o=json
+kgnaaowide	get namespaces --all-namespaces -o=wide
+kgnaaoyaml	get namespaces --all-namespaces -o=yaml
+kgnaaw	get namespaces --all-namespaces --watch
+kgnaawj	get namespaces --all-namespaces --watch -o=json
+kgnaawo	get namespaces --all-namespaces --watch -o=wide
+kgnaawy	get namespaces --all-namespaces --watch -o=yaml
+kgnj	get namespaces -o=json
+kgnjall	get namespaces -o=json --all-namespaces
+kgnjl	get namespaces -o=json -l
+kgnl	get namespaces -l
+kgno	get nodes
+kgnoj	get nodes -o=json
+kgnojl	get nodes -o=json -l
+kgnol	get nodes -l
+kgnoo	get nodes -o=wide
+kgnool	get nodes -o=wide -l
+kgnow	get nodes --watch
+kgnowj	get nodes --watch -o=json
+kgnowjl	get nodes --watch -o=json -l
+kgnowl	get nodes --watch -l
+kgnowo	get nodes --watch -o=wide
+kgnowol	get nodes --watch -o=wide -l
+kgnowy	get nodes --watch -o=yaml
+kgnowyl	get nodes --watch -o=yaml -l
+kgnoy	get nodes -o=yaml
+kgnoyl	get nodes -o=yaml -l
+kgnso	get namespaces -o=wide
+kgnsoall	get namespaces -o=wide --all-namespaces
+kgnsol	get namespaces -o=wide -l
+kgnw	get namespaces --watch
+kgnwaaj	get namespaces --watch --all-namespaces -o=json
+kgnwaao	get namespaces --watch --all-namespaces -o=wide
+kgnwaay	get namespaces --watch --all-namespaces -o=yaml
+kgnwall	get namespaces --watch --all-namespaces
+kgnwj	get namespaces --watch -o=json
+kgnwjall	get namespaces --watch -o=json --all-namespaces
+kgnwjl	get namespaces --watch -o=json -l
+kgnwl	get namespaces --watch -l
+kgnwo	get namespaces --watch -o=wide
+kgnwoall	get namespaces --watch -o=wide --all-namespaces
+kgnwol	get namespaces --watch -o=wide -l
+kgnwy	get namespaces --watch -o=yaml
+kgnwyall	get namespaces --watch -o=yaml --all-namespaces
+kgnwyl	get namespaces --watch -o=yaml -l
+kgny	get namespaces -o=yaml
+kgnyall	get namespaces -o=yaml --all-namespaces
+kgnyl	get namespaces -o=yaml -l
+kgo	get -o=wide
+kgoall	get -o=wide --all-namespaces
+kgoallsl	get -o=wide --all-namespaces --show-labels
+kgof	get -o=wide --recursive -f
+kgol	get -o=wide -l
+kgon	get -o=wide --namespace
+kgosl	get -o=wide --show-labels
+kgoslall	get -o=wide --show-labels --all-namespaces
+kgoslf	get -o=wide --show-labels --recursive -f
+kgosll	get -o=wide --show-labels -l
+kgosln	get -o=wide --show-labels --namespace
+kgp	get pods
+kgpaa	get pods --all-namespaces
+kgpaaojson	get pods --all-namespaces -o=json
+kgpaaosl	get pods --all-namespaces -o=wide --show-labels
+kgpaaowide	get pods --all-namespaces -o=wide
+kgpaaoyaml	get pods --all-namespaces -o=yaml
+kgpaasl	get pods --all-namespaces --show-labels
+kgpaaslo	get pods --all-namespaces --show-labels -o=wide
+kgpaaslw	get pods --all-namespaces --show-labels --watch
+kgpaaslwo	get pods --all-namespaces --show-labels --watch -o=wide
+kgpaaw	get pods --all-namespaces --watch
+kgpaawj	get pods --all-namespaces --watch -o=json
+kgpaawo	get pods --all-namespaces --watch -o=wide
+kgpaawosl	get pods --all-namespaces --watch -o=wide --show-labels
+kgpaawsl	get pods --all-namespaces --watch --show-labels
+kgpaawslo	get pods --all-namespaces --watch --show-labels -o=wide
+kgpaawy	get pods --all-namespaces --watch -o=yaml
+kgpaay	get pods --all-namespaces -o=yaml
+kgpj	get pods -o=json
+kgpjall	get pods -o=json --all-namespaces
+kgpjl	get pods -o=json -l
+kgpjn	get pods -o=json --namespace
+kgpl	get pods -l
+kgpn	get pods --namespace
+kgpo	get pods -o=wide
+kgpoall	get pods -o=wide --all-namespaces
+kgpoallsl	get pods -o=wide --all-namespaces --show-labels
+kgpol	get pods -o=wide -l
+kgpon	get pods -o=wide --namespace
+kgposl	get pods -o=wide --show-labels
+kgposlall	get pods -o=wide --show-labels --all-namespaces
+kgposll	get pods -o=wide --show-labels -l
+kgposln	get pods -o=wide --show-labels --namespace
+kgpsl	get pods --show-labels
+kgpslaao	get pods --show-labels --all-namespaces -o=wide
+kgpslall	get pods --show-labels --all-namespaces
+kgpslallw	get pods --show-labels --all-namespaces --watch
+kgpslallwo	get pods --show-labels --all-namespaces --watch -o=wide
+kgpsll	get pods --show-labels -l
+kgpsln	get pods --show-labels --namespace
+kgpslo	get pods --show-labels -o=wide
+kgpsloaa	get pods --show-labels -o=wide --all-namespaces
+kgpslol	get pods --show-labels -o=wide -l
+kgpslon	get pods --show-labels -o=wide --namespace
+kgpslw	get pods --show-labels --watch
+kgpslwaao	get pods --show-labels --watch --all-namespaces -o=wide
+kgpslwall	get pods --show-labels --watch --all-namespaces
+kgpslwl	get pods --show-labels --watch -l
+kgpslwn	get pods --show-labels --watch --namespace
+kgpslwo	get pods --show-labels --watch -o=wide
+kgpslwoall	get pods --show-labels --watch -o=wide --all-namespaces
+kgpslwol	get pods --show-labels --watch -o=wide -l
+kgpslwon	get pods --show-labels --watch -o=wide --namespace
+kgpw	get pods --watch
+kgpwaaj	get pods --watch --all-namespaces -o=json
+kgpwaao	get pods --watch --all-namespaces -o=wide
+kgpwaaosl	get pods --watch --all-namespaces -o=wide --show-labels
+kgpwaay	get pods --watch --all-namespaces -o=yaml
+kgpwall	get pods --watch --all-namespaces
+kgpwallsl	get pods --watch --all-namespaces --show-labels
+kgpwallslo	get pods --watch --all-namespaces --show-labels -o=wide
+kgpwj	get pods --watch -o=json
+kgpwjall	get pods --watch -o=json --all-namespaces
+kgpwjl	get pods --watch -o=json -l
+kgpwjn	get pods --watch -o=json --namespace
+kgpwl	get pods --watch -l
+kgpwn	get pods --watch --namespace
+kgpwo	get pods --watch -o=wide
+kgpwoall	get pods --watch -o=wide --all-namespaces
+kgpwoallsl	get pods --watch -o=wide --all-namespaces --show-labels
+kgpwol	get pods --watch -o=wide -l
+kgpwon	get pods --watch -o=wide --namespace
+kgpwosl	get pods --watch -o=wide --show-labels
+kgpwoslall	get pods --watch -o=wide --show-labels --all-namespaces
+kgpwosll	get pods --watch -o=wide --show-labels -l
+kgpwosln	get pods --watch -o=wide --show-labels --namespace
+kgpwsl	get pods --watch --show-labels
+kgpwslaao	get pods --watch --show-labels --all-namespaces -o=wide
+kgpwslall	get pods --watch --show-labels --all-namespaces
+kgpwsll	get pods --watch --show-labels -l
+kgpwsln	get pods --watch --show-labels --namespace
+kgpwslo	get pods --watch --show-labels -o=wide
+kgpwsloaa	get pods --watch --show-labels -o=wide --all-namespaces
+kgpwslol	get pods --watch --show-labels -o=wide -l
+kgpwslon	get pods --watch --show-labels -o=wide --namespace
+kgpwy	get pods --watch -o=yaml
+kgpwyall	get pods --watch -o=yaml --all-namespaces
+kgpwyl	get pods --watch -o=yaml -l
+kgpwyn	get pods --watch -o=yaml --namespace
+kgpy	get pods -o=yaml
+kgpyall	get pods -o=yaml --all-namespaces
+kgpyl	get pods -o=yaml -l
+kgpyn	get pods -o=yaml --namespace
+kgse	get secret
+kgseaa	get secret --all-namespaces
+kgseaaojson	get secret --all-namespaces -o=json
+kgseaaowide	get secret --all-namespaces -o=wide
+kgseaaoyaml	get secret --all-namespaces -o=yaml
+kgseaaw	get secret --all-namespaces --watch
+kgseaawj	get secret --all-namespaces --watch -o=json
+kgseaawo	get secret --all-namespaces --watch -o=wide
+kgseaawy	get secret --all-namespaces --watch -o=yaml
+kgsej	get secret -o=json
+kgsejall	get secret -o=json --all-namespaces
+kgsejl	get secret -o=json -l
+kgsejn	get secret -o=json --namespace
+kgsel	get secret -l
+kgsen	get secret --namespace
+kgseo	get secret -o=wide
+kgseoall	get secret -o=wide --all-namespaces
+kgseol	get secret -o=wide -l
+kgseon	get secret -o=wide --namespace
+kgsew	get secret --watch
+kgsewaaj	get secret --watch --all-namespaces -o=json
+kgsewaao	get secret --watch --all-namespaces -o=wide
+kgsewaay	get secret --watch --all-namespaces -o=yaml
+kgsewall	get secret --watch --all-namespaces
+kgsewj	get secret --watch -o=json
+kgsewjall	get secret --watch -o=json --all-namespaces
+kgsewjl	get secret --watch -o=json -l
+kgsewjn	get secret --watch -o=json --namespace
+kgsewl	get secret --watch -l
+kgsewn	get secret --watch --namespace
+kgsewo	get secret --watch -o=wide
+kgsewoall	get secret --watch -o=wide --all-namespaces
+kgsewol	get secret --watch -o=wide -l
+kgsewon	get secret --watch -o=wide --namespace
+kgsewy	get secret --watch -o=yaml
+kgsewyall	get secret --watch -o=yaml --all-namespaces
+kgsewyl	get secret --watch -o=yaml -l
+kgsewyn	get secret --watch -o=yaml --namespace
+kgsey	get secret -o=yaml
+kgseyall	get secret -o=yaml --all-namespaces
+kgseyl	get secret -o=yaml -l
+kgseyn	get secret -o=yaml --namespace
+kgsl	get --show-labels
+kgslaao	get --show-labels --all-namespaces -o=wide
+kgslall	get --show-labels --all-namespaces
+kgslallw	get --show-labels --all-namespaces --watch
+kgslallwo	get --show-labels --all-namespaces --watch -o=wide
+kgslf	get --show-labels --recursive -f
+kgsll	get --show-labels -l
+kgsln	get --show-labels --namespace
+kgslo	get --show-labels -o=wide
+kgsloaa	get --show-labels -o=wide --all-namespaces
+kgslof	get --show-labels -o=wide --recursive -f
+kgslol	get --show-labels -o=wide -l
+kgslon	get --show-labels -o=wide --namespace
+kgslw	get --show-labels --watch
+kgslwaao	get --show-labels --watch --all-namespaces -o=wide
+kgslwall	get --show-labels --watch --all-namespaces
+kgslwf	get --show-labels --watch --recursive -f
+kgslwl	get --show-labels --watch -l
+kgslwn	get --show-labels --watch --namespace
+kgslwo	get --show-labels --watch -o=wide
+kgslwoall	get --show-labels --watch -o=wide --all-namespaces
+kgslwof	get --show-labels --watch -o=wide --recursive -f
+kgslwol	get --show-labels --watch -o=wide -l
+kgslwon	get --show-labels --watch -o=wide --namespace
+kgsv	get service
+kgsvaa	get service --all-namespaces
+kgsvaaojson	get service --all-namespaces -o=json
+kgsvaaowide	get service --all-namespaces -o=wide
+kgsvaaoyaml	get service --all-namespaces -o=yaml
+kgsvaaw	get service --all-namespaces --watch
+kgsvaawj	get service --all-namespaces --watch -o=json
+kgsvaawo	get service --all-namespaces --watch -o=wide
+kgsvaawy	get service --all-namespaces --watch -o=yaml
+kgsvj	get service -o=json
+kgsvjall	get service -o=json --all-namespaces
+kgsvjl	get service -o=json -l
+kgsvjn	get service -o=json --namespace
+kgsvl	get service -l
+kgsvn	get service --namespace
+kgsvo	get service -o=wide
+kgsvoall	get service -o=wide --all-namespaces
+kgsvol	get service -o=wide -l
+kgsvon	get service -o=wide --namespace
+kgsvw	get service --watch
+kgsvwaaj	get service --watch --all-namespaces -o=json
+kgsvwaao	get service --watch --all-namespaces -o=wide
+kgsvwaay	get service --watch --all-namespaces -o=yaml
+kgsvwall	get service --watch --all-namespaces
+kgsvwj	get service --watch -o=json
+kgsvwjall	get service --watch -o=json --all-namespaces
+kgsvwjl	get service --watch -o=json -l
+kgsvwjn	get service --watch -o=json --namespace
+kgsvwl	get service --watch -l
+kgsvwn	get service --watch --namespace
+kgsvwo	get service --watch -o=wide
+kgsvwoall	get service --watch -o=wide --all-namespaces
+kgsvwol	get service --watch -o=wide -l
+kgsvwon	get service --watch -o=wide --namespace
+kgsvwy	get service --watch -o=yaml
+kgsvwyall	get service --watch -o=yaml --all-namespaces
+kgsvwyl	get service --watch -o=yaml -l
+kgsvwyn	get service --watch -o=yaml --namespace
+kgsvy	get service -o=yaml
+kgsvyall	get service -o=yaml --all-namespaces
+kgsvyl	get service -o=yaml -l
+kgsvyn	get service -o=yaml --namespace
+kgw	get --watch
+kgwaaj	get --watch --all-namespaces -o=json
+kgwaao	get --watch --all-namespaces -o=wide
+kgwaaosl	get --watch --all-namespaces -o=wide --show-labels
+kgwaay	get --watch --all-namespaces -o=yaml
+kgwall	get --watch --all-namespaces
+kgwallsl	get --watch --all-namespaces --show-labels
+kgwallslo	get --watch --all-namespaces --show-labels -o=wide
+kgwf	get --watch --recursive -f
+kgwj	get --watch -o=json
+kgwjall	get --watch -o=json --all-namespaces
+kgwjf	get --watch -o=json --recursive -f
+kgwjl	get --watch -o=json -l
+kgwjn	get --watch -o=json --namespace
+kgwl	get --watch -l
+kgwn	get --watch --namespace
+kgwo	get --watch -o=wide
+kgwoall	get --watch -o=wide --all-namespaces
+kgwoallsl	get --watch -o=wide --all-namespaces --show-labels
+kgwof	get --watch -o=wide --recursive -f
+kgwol	get --watch -o=wide -l
+kgwon	get --watch -o=wide --namespace
+kgwosl	get --watch -o=wide --show-labels
+kgwoslall	get --watch -o=wide --show-labels --all-namespaces
+kgwoslf	get --watch -o=wide --show-labels --recursive -f
+kgwosll	get --watch -o=wide --show-labels -l
+kgwosln	get --watch -o=wide --show-labels --namespace
+kgwsl	get --watch --show-labels
+kgwslaao	get --watch --show-labels --all-namespaces -o=wide
+kgwslall	get --watch --show-labels --all-namespaces
+kgwslf	get --watch --show-labels --recursive -f
+kgwsll	get --watch --show-labels -l
+kgwsln	get --watch --show-labels --namespace
+kgwslo	get --watch --show-labels -o=wide
+kgwsloaa	get --watch --show-labels -o=wide --all-namespaces
+kgwslof	get --watch --show-labels -o=wide --recursive -f
+kgwslol	get --watch --show-labels -o=wide -l
+kgwslon	get --watch --show-labels -o=wide --namespace
+kgwy	get --watch -o=yaml
+kgwyall	get --watch -o=yaml --all-namespaces
+kgwyf	get --watch -o=yaml --recursive -f
+kgwyl	get --watch -o=yaml -l
+kgwyn	get --watch -o=yaml --namespace
+kgy	get -o=yaml
+kgyall	get -o=yaml --all-namespaces
+kgyf	get -o=yaml --recursive -f
+kgyl	get -o=yaml -l
+kgyn	get -o=yaml --namespace
+kk	kustomize
+kl	logs -f
+kln	logs -f --namespace
+klp	logs -f -p
+kp	proxy
+kpf	port-forward
+kpfn	port-forward --namespace
+krun	run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t
+kx	delete
+kxaa	delete --all
+kxc	delete configmap
+kxcaa	delete configmap --all
+kxcl	delete configmap -l
+kxcn	delete configmap --namespace
+kxde	delete deployment
+kxdeaa	delete deployment --all
+kxdel	delete deployment -l
+kxden	delete deployment --namespace
+kxf	delete --recursive -f
+kxi	delete ingress
+kxiaa	delete ingress --all
+kxil	delete ingress -l
+kxin	delete ingress --namespace
+kxl	delete -l
+kxn	delete namespaces
+kxnaa	delete namespaces --all
+kxnl	delete namespaces -l
+kxp	delete pods
+kxpaa	delete pods --all
+kxpl	delete pods -l
+kxpn	delete pods --namespace
+kxse	delete secret
+kxseaa	delete secret --all
+kxsel	delete secret -l
+kxsen	delete secret --namespace
+kxsv	delete service
+kxsvaa	delete service --all
+kxsvl	delete service -l
+kxsvn	delete service --namespace
+kz	--namespace=kube-system
+kza	--namespace=kube-system apply --recursive -f
+kzd	--namespace=kube-system describe
+kzdc	--namespace=kube-system describe configmap
+kzdcl	--namespace=kube-system describe configmap -l
+kzdde	--namespace=kube-system describe deployment
+kzddel	--namespace=kube-system describe deployment -l
+kzdi	--namespace=kube-system describe ingress
+kzdil	--namespace=kube-system describe ingress -l
+kzdl	--namespace=kube-system describe -l
+kzdp	--namespace=kube-system describe pods
+kzdpl	--namespace=kube-system describe pods -l
+kzdse	--namespace=kube-system describe secret
+kzdsel	--namespace=kube-system describe secret -l
+kzdsv	--namespace=kube-system describe service
+kzdsvl	--namespace=kube-system describe service -l
+kze	--namespace=kube-system exec -i -t
+kzg	--namespace=kube-system get
+kzgc	--namespace=kube-system get configmap
+kzgcj	--namespace=kube-system get configmap -o=json
+kzgcjl	--namespace=kube-system get configmap -o=json -l
+kzgcl	--namespace=kube-system get configmap -l
+kzgco	--namespace=kube-system get configmap -o=wide
+kzgcol	--namespace=kube-system get configmap -o=wide -l
+kzgcw	--namespace=kube-system get configmap --watch
+kzgcwj	--namespace=kube-system get configmap --watch -o=json
+kzgcwjl	--namespace=kube-system get configmap --watch -o=json -l
+kzgcwl	--namespace=kube-system get configmap --watch -l
+kzgcwo	--namespace=kube-system get configmap --watch -o=wide
+kzgcwol	--namespace=kube-system get configmap --watch -o=wide -l
+kzgcwy	--namespace=kube-system get configmap --watch -o=yaml
+kzgcwyl	--namespace=kube-system get configmap --watch -o=yaml -l
+kzgcy	--namespace=kube-system get configmap -o=yaml
+kzgcyl	--namespace=kube-system get configmap -o=yaml -l
+kzgde	--namespace=kube-system get deployment
+kzgdej	--namespace=kube-system get deployment -o=json
+kzgdejl	--namespace=kube-system get deployment -o=json -l
+kzgdel	--namespace=kube-system get deployment -l
+kzgdeo	--namespace=kube-system get deployment -o=wide
+kzgdeol	--namespace=kube-system get deployment -o=wide -l
+kzgdeosl	--namespace=kube-system get deployment -o=wide --show-labels
+kzgdeosll	--namespace=kube-system get deployment -o=wide --show-labels -l
+kzgdesl	--namespace=kube-system get deployment --show-labels
+kzgdesll	--namespace=kube-system get deployment --show-labels -l
+kzgdeslo	--namespace=kube-system get deployment --show-labels -o=wide
+kzgdeslol	--namespace=kube-system get deployment --show-labels -o=wide -l
+kzgdeslw	--namespace=kube-system get deployment --show-labels --watch
+kzgdeslwl	--namespace=kube-system get deployment --show-labels --watch -l
+kzgdeslwo	--namespace=kube-system get deployment --show-labels --watch -o=wide
+kzgdeslwol	--namespace=kube-system get deployment --show-labels --watch -o=wide -l
+kzgdew	--namespace=kube-system get deployment --watch
+kzgdewj	--namespace=kube-system get deployment --watch -o=json
+kzgdewjl	--namespace=kube-system get deployment --watch -o=json -l
+kzgdewl	--namespace=kube-system get deployment --watch -l
+kzgdewo	--namespace=kube-system get deployment --watch -o=wide
+kzgdewol	--namespace=kube-system get deployment --watch -o=wide -l
+kzgdewosl	--namespace=kube-system get deployment --watch -o=wide --show-labels
+kzgdewosll	--namespace=kube-system get deployment --watch -o=wide --show-labels -l
+kzgdewsl	--namespace=kube-system get deployment --watch --show-labels
+kzgdewsll	--namespace=kube-system get deployment --watch --show-labels -l
+kzgdewslo	--namespace=kube-system get deployment --watch --show-labels -o=wide
+kzgdewslol	--namespace=kube-system get deployment --watch --show-labels -o=wide -l
+kzgdewy	--namespace=kube-system get deployment --watch -o=yaml
+kzgdewyl	--namespace=kube-system get deployment --watch -o=yaml -l
+kzgdey	--namespace=kube-system get deployment -o=yaml
+kzgdeyl	--namespace=kube-system get deployment -o=yaml -l
+kzgi	--namespace=kube-system get ingress
+kzgij	--namespace=kube-system get ingress -o=json
+kzgijl	--namespace=kube-system get ingress -o=json -l
+kzgil	--namespace=kube-system get ingress -l
+kzgio	--namespace=kube-system get ingress -o=wide
+kzgiol	--namespace=kube-system get ingress -o=wide -l
+kzgiw	--namespace=kube-system get ingress --watch
+kzgiwj	--namespace=kube-system get ingress --watch -o=json
+kzgiwjl	--namespace=kube-system get ingress --watch -o=json -l
+kzgiwl	--namespace=kube-system get ingress --watch -l
+kzgiwo	--namespace=kube-system get ingress --watch -o=wide
+kzgiwol	--namespace=kube-system get ingress --watch -o=wide -l
+kzgiwy	--namespace=kube-system get ingress --watch -o=yaml
+kzgiwyl	--namespace=kube-system get ingress --watch -o=yaml -l
+kzgiy	--namespace=kube-system get ingress -o=yaml
+kzgiyl	--namespace=kube-system get ingress -o=yaml -l
+kzgj	--namespace=kube-system get -o=json
+kzgjl	--namespace=kube-system get -o=json -l
+kzgl	--namespace=kube-system get -l
+kzgo	--namespace=kube-system get -o=wide
+kzgol	--namespace=kube-system get -o=wide -l
+kzgosl	--namespace=kube-system get -o=wide --show-labels
+kzgosll	--namespace=kube-system get -o=wide --show-labels -l
+kzgp	--namespace=kube-system get pods
+kzgpj	--namespace=kube-system get pods -o=json
+kzgpjl	--namespace=kube-system get pods -o=json -l
+kzgpl	--namespace=kube-system get pods -l
+kzgpo	--namespace=kube-system get pods -o=wide
+kzgpol	--namespace=kube-system get pods -o=wide -l
+kzgposl	--namespace=kube-system get pods -o=wide --show-labels
+kzgposll	--namespace=kube-system get pods -o=wide --show-labels -l
+kzgpsl	--namespace=kube-system get pods --show-labels
+kzgpsll	--namespace=kube-system get pods --show-labels -l
+kzgpslo	--namespace=kube-system get pods --show-labels -o=wide
+kzgpslol	--namespace=kube-system get pods --show-labels -o=wide -l
+kzgpslw	--namespace=kube-system get pods --show-labels --watch
+kzgpslwl	--namespace=kube-system get pods --show-labels --watch -l
+kzgpslwo	--namespace=kube-system get pods --show-labels --watch -o=wide
+kzgpslwol	--namespace=kube-system get pods --show-labels --watch -o=wide -l
+kzgpw	--namespace=kube-system get pods --watch
+kzgpwj	--namespace=kube-system get pods --watch -o=json
+kzgpwjl	--namespace=kube-system get pods --watch -o=json -l
+kzgpwl	--namespace=kube-system get pods --watch -l
+kzgpwo	--namespace=kube-system get pods --watch -o=wide
+kzgpwol	--namespace=kube-system get pods --watch -o=wide -l
+kzgpwosl	--namespace=kube-system get pods --watch -o=wide --show-labels
+kzgpwosll	--namespace=kube-system get pods --watch -o=wide --show-labels -l
+kzgpwsl	--namespace=kube-system get pods --watch --show-labels
+kzgpwsll	--namespace=kube-system get pods --watch --show-labels -l
+kzgpwslo	--namespace=kube-system get pods --watch --show-labels -o=wide
+kzgpwslol	--namespace=kube-system get pods --watch --show-labels -o=wide -l
+kzgpwy	--namespace=kube-system get pods --watch -o=yaml
+kzgpwyl	--namespace=kube-system get pods --watch -o=yaml -l
+kzgpy	--namespace=kube-system get pods -o=yaml
+kzgpyl	--namespace=kube-system get pods -o=yaml -l
+kzgse	--namespace=kube-system get secret
+kzgsej	--namespace=kube-system get secret -o=json
+kzgsejl	--namespace=kube-system get secret -o=json -l
+kzgsel	--namespace=kube-system get secret -l
+kzgseo	--namespace=kube-system get secret -o=wide
+kzgseol	--namespace=kube-system get secret -o=wide -l
+kzgsew	--namespace=kube-system get secret --watch
+kzgsewj	--namespace=kube-system get secret --watch -o=json
+kzgsewjl	--namespace=kube-system get secret --watch -o=json -l
+kzgsewl	--namespace=kube-system get secret --watch -l
+kzgsewo	--namespace=kube-system get secret --watch -o=wide
+kzgsewol	--namespace=kube-system get secret --watch -o=wide -l
+kzgsewy	--namespace=kube-system get secret --watch -o=yaml
+kzgsewyl	--namespace=kube-system get secret --watch -o=yaml -l
+kzgsey	--namespace=kube-system get secret -o=yaml
+kzgseyl	--namespace=kube-system get secret -o=yaml -l
+kzgsl	--namespace=kube-system get --show-labels
+kzgsll	--namespace=kube-system get --show-labels -l
+kzgslo	--namespace=kube-system get --show-labels -o=wide
+kzgslol	--namespace=kube-system get --show-labels -o=wide -l
+kzgslw	--namespace=kube-system get --show-labels --watch
+kzgslwl	--namespace=kube-system get --show-labels --watch -l
+kzgslwo	--namespace=kube-system get --show-labels --watch -o=wide
+kzgslwol	--namespace=kube-system get --show-labels --watch -o=wide -l
+kzgsv	--namespace=kube-system get service
+kzgsvj	--namespace=kube-system get service -o=json
+kzgsvjl	--namespace=kube-system get service -o=json -l
+kzgsvl	--namespace=kube-system get service -l
+kzgsvo	--namespace=kube-system get service -o=wide
+kzgsvol	--namespace=kube-system get service -o=wide -l
+kzgsvw	--namespace=kube-system get service --watch
+kzgsvwj	--namespace=kube-system get service --watch -o=json
+kzgsvwjl	--namespace=kube-system get service --watch -o=json -l
+kzgsvwl	--namespace=kube-system get service --watch -l
+kzgsvwo	--namespace=kube-system get service --watch -o=wide
+kzgsvwol	--namespace=kube-system get service --watch -o=wide -l
+kzgsvwy	--namespace=kube-system get service --watch -o=yaml
+kzgsvwyl	--namespace=kube-system get service --watch -o=yaml -l
+kzgsvy	--namespace=kube-system get service -o=yaml
+kzgsvyl	--namespace=kube-system get service -o=yaml -l
+kzgw	--namespace=kube-system get --watch
+kzgwj	--namespace=kube-system get --watch -o=json
+kzgwjl	--namespace=kube-system get --watch -o=json -l
+kzgwl	--namespace=kube-system get --watch -l
+kzgwo	--namespace=kube-system get --watch -o=wide
+kzgwol	--namespace=kube-system get --watch -o=wide -l
+kzgwosl	--namespace=kube-system get --watch -o=wide --show-labels
+kzgwosll	--namespace=kube-system get --watch -o=wide --show-labels -l
+kzgwsl	--namespace=kube-system get --watch --show-labels
+kzgwsll	--namespace=kube-system get --watch --show-labels -l
+kzgwslo	--namespace=kube-system get --watch --show-labels -o=wide
+kzgwslol	--namespace=kube-system get --watch --show-labels -o=wide -l
+kzgwy	--namespace=kube-system get --watch -o=yaml
+kzgwyl	--namespace=kube-system get --watch -o=yaml -l
+kzgy	--namespace=kube-system get -o=yaml
+kzgyl	--namespace=kube-system get -o=yaml -l
+kzl	--namespace=kube-system logs -f
+kzlp	--namespace=kube-system logs -f -p
+kzrun	--namespace=kube-system run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t
+kzx	--namespace=kube-system delete
+kzxaa	--namespace=kube-system delete --all
+kzxc	--namespace=kube-system delete configmap
+kzxcaa	--namespace=kube-system delete configmap --all
+kzxcl	--namespace=kube-system delete configmap -l
+kzxde	--namespace=kube-system delete deployment
+kzxdeaa	--namespace=kube-system delete deployment --all
+kzxdel	--namespace=kube-system delete deployment -l
+kzxi	--namespace=kube-system delete ingress
+kzxiaa	--namespace=kube-system delete ingress --all
+kzxil	--namespace=kube-system delete ingress -l
+kzxl	--namespace=kube-system delete -l
+kzxp	--namespace=kube-system delete pods
+kzxpaa	--namespace=kube-system delete pods --all
+kzxpl	--namespace=kube-system delete pods -l
+kzxse	--namespace=kube-system delete secret
+kzxseaa	--namespace=kube-system delete secret --all
+kzxsel	--namespace=kube-system delete secret -l
+kzxsv	--namespace=kube-system delete service
+kzxsvaa	--namespace=kube-system delete service --all
+kzxsvl	--namespace=kube-system delete service -l

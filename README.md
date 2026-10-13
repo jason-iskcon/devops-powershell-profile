@@ -283,9 +283,9 @@ ta                          # Apply (with auto-approve)
 kg      - kubectl get                (K + Get)
 kd      - kubectl describe           (K + Describe)
 kx      - kubectl delete             (K + eXterminate - exception!)
-ka      - kubectl apply              (K + Apply)
-kl      - kubectl logs               (K + Logs)
-ke      - kubectl exec               (K + Exec)
+ka      - kubectl apply --recursive -f   (K + Apply; pass a path: ka deploy.yaml)
+kl      - kubectl logs -f            (K + Logs; always follows)
+ke      - kubectl exec -i -t         (K + Exec)
 ```
 
 **⚠️ ⚠️ ⚠️ DESTRUCTIVE COMMAND ⚠️ ⚠️ ⚠️**
@@ -324,7 +324,7 @@ no      - node                      (first two: NOde)
 y       - yaml output               (Y = Yaml)
 j       - json output               (J = Json)
 o       - wide output               (O = Output-wide)
-aa      - all/all-namespaces         (double A = "all")
+aa      - all-namespaces (delete: --all)  (double A = "all")
 w       - watch                     (W = Watch)
 sl      - show-labels               (Show Labels)
 ```
@@ -375,7 +375,12 @@ k  + g  + de + y   = kgdey        (get deployment yaml)
    - `sv` = service (avoids conflict with secret)
 
 3. **Double letters** for "all" modifier
-   - `aa` = all/all-namespaces
+   - `aa` = `--all-namespaces` with `get`/`describe`
+   - `aa` = `--all` with `x` (delete): `kxpaa` = `kubectl delete pods --all`, which deletes every pod in the **current** namespace. Treat any `kx…aa` alias as destructive.
+
+4. **Long forms** are synonyms: `kgpaaoyaml` = `kgpaay`, and likewise `owide`/`ojson` and `all` (for `aa`)
+
+5. **`n` means two things**: as a resource, `n` is namespaces (`kgn`); as a trailing flag it is `--namespace` (`kgpn`). `kgno` is nodes, so namespaces with wide output is `kgnso`/`kgnsoall`.
 
 ### Kubectl Quick Reference
 
@@ -419,13 +424,6 @@ k  + g  + de + y   = kgdey        (get deployment yaml)
 │ kgpsl    - get pods show-labels         │
 │ kzgp     - get pods (kube-system)       │
 └─────────────────────────────────────────┘
-```
-
-### Helper Functions
-
-```
-dy      - dry-run yaml                (for: k create deploy nginx --image=nginx dy)
-f       - force kill                  (for: k delete pod x f)
 ```
 
 ### Anti-Patterns ⚠️
@@ -482,7 +480,7 @@ The test suite validates:
 - ✅ **Kubectl Base Commands** - All 8 base verbs (k, kg, kd, kx, etc.)
 - ✅ **Kubectl Resource Commands** - All 11 common resource combinations
 - ✅ **Kubectl Output Formats** - All 7 output format combinations
-- ✅ **Helper Functions** - dy and f functions
+- ✅ **Kubectl expansions** - every `k*` function's body is compared with `tests/k-aliases.tsv`
 
 ### Test Output
 
@@ -555,7 +553,7 @@ ga .                        # 2. Add changes
 gcmsg "Add feature xyz"     # 3. Commit
 tp                          # 4. Plan terraform
 ta                          # 5. Apply terraform
-ka -f deploy.yaml           # 6. Apply k8s manifest
+ka deploy.yaml              # 6. Apply k8s manifest (ka already includes --recursive -f)
 kgpw                        # 7. Watch pods deploy
 gp                          # 8. Push code
 ```

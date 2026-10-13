@@ -75,7 +75,10 @@ function relax {
 # 
 # flags:
 # output = y (yaml), j (json), o (wide)
-# aa = --all or --all-namespaces
+# aa = --all-namespaces (get/describe) or --all (delete; e.g. kxpaa = delete pods --all
+#      in the current namespace -- destructive)
+# long forms: oyaml/owide/ojson = -o=yaml/-o=wide/-o=json, all = aa (e.g. kgpaaoyaml)
+# kgnso/kgnsoall = get namespaces -o=wide (kgno is nodes, so n+o cannot be combined)
 # sl = --show-labels
 # w = -w/--watch
 # 
@@ -780,9 +783,6 @@ function kzgdewslol() { & kubectl --namespace=kube-system get deployment --watch
 function ken() { & kubectl exec -i -t --namespace $args }
 function kln() { & kubectl logs -f --namespace $args }
 function kpfn() { & kubectl port-forward --namespace $args }
-function kgn() { & kubectl get --namespace $args }
-function kdn() { & kubectl describe --namespace $args }
-function kxn() { & kubectl delete --namespace $args }
 function kgpn() { & kubectl get pods --namespace $args }
 function kdpn() { & kubectl describe pods --namespace $args }
 function kxpn() { & kubectl delete pods --namespace $args }
@@ -874,11 +874,6 @@ function kgdewosln() { & kubectl get deployment --watch -o=wide --show-labels --
 function kgwslon() { & kubectl get --watch --show-labels -o=wide --namespace $args }
 function kgpwslon() { & kubectl get pods --watch --show-labels -o=wide --namespace $args }
 function kgdewslon() { & kubectl get deployment --watch --show-labels -o=wide --namespace $args }
-
-# e.g. k create deploy nginx --image=nginx dy
-function dy { "--dry-run=client"; "-o=yaml" } 
-# e.g. k delete pod x f
-function f { "--force"; "--grace-period"; "0" }
 
 # Usage tracking for aliases (optional, disabled by default)
 # Enable with: $env:TRACK_ALIAS_USAGE = "true"

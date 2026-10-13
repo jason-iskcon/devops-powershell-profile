@@ -40,14 +40,14 @@ function Test-Alias {
             }
         } else {
             $result.Error = "Command not found"
-            $FailedTests += $result
+            $script:FailedTests += $result
         }
     } catch {
         $result.Error = $_.Exception.Message
-        $FailedTests += $result
+        $script:FailedTests += $result
     }
     
-    $TestResults += $result
+    $script:TestResults += $result
     
     if ($Verbose -and $result.Exists) {
         Write-Host "    [Type: $($result.CommandType), Source: $($result.Source)]" -ForegroundColor DarkGray
@@ -231,22 +231,49 @@ foreach ($alias in $kubectlOutputs) {
 }
 
 # ============================================
-# Helper Functions Tests
+# Kubectl Expansion Tests (all aliases)
 # ============================================
-Write-Host "`n--- Testing Helper Functions ---" -ForegroundColor Cyan
+# tests/k-aliases.tsv is the reference list: <name><TAB><kubectl arguments>.
+# Each k* function body must be exactly "& kubectl <arguments> $args".
+Write-Host "`n--- Testing Kubectl Expansions (tests/k-aliases.tsv) ---" -ForegroundColor Cyan
 
-$helperFunctions = @(
-    @{Name="dy"; Desc="dry-run yaml"},
-    @{Name="f"; Desc="force kill"}
-)
+$manifestPath = Join-Path $PSScriptRoot "tests/k-aliases.tsv"
+$manifest = Get-Content $manifestPath | Where-Object { $_ -ne "" }
 
-foreach ($alias in $helperFunctions) {
-    $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Helpers" -SkipExecution
-    if ($test.Exists) {
-        Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
+foreach ($line in $manifest) {
+    $name, $kubectlArgs = $line -split "`t", 2
+    $expected = (("& kubectl " + $kubectlArgs).TrimEnd() + ' $args')
+    $result = @{ Name = $name; Category = "Kubectl-Expansion"; Exists = $false; Error = $null }
+    $cmd = Get-Command $name -CommandType Function -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        $result.Error = "Function not found"
     } else {
-        Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+        $actual = $cmd.ScriptBlock.ToString().Trim()
+        if ($actual -eq $expected) {
+            $result.Exists = $true
+        } else {
+            $result.Error = "Expected '$expected' but got '$actual'"
+        }
     }
+    $script:TestResults += $result
+    if (-not $result.Exists) { $script:FailedTests += $result }
+}
+Write-Host "  Checked $($manifest.Count) kubectl aliases" -ForegroundColor Gray
+
+# A function defined twice silently overrides the first (the old kgn bug), so check the source.
+$definedNames = Select-String -Path $profilePath -Pattern '^function (k[a-z]*)\(' |
+    ForEach-Object { $_.Matches[0].Groups[1].Value }
+$duplicates = $definedNames | Group-Object | Where-Object { $_.Count -gt 1 }
+foreach ($dup in $duplicates) {
+    $dupResult = @{ Name = $dup.Name; Category = "Kubectl-Duplicate"; Exists = $false; Error = "Defined $($dup.Count) times" }
+    $script:TestResults += $dupResult
+    $script:FailedTests += $dupResult
+}
+$extra = $definedNames | Sort-Object -Unique | Where-Object { $_ -notin ($manifest | ForEach-Object { ($_ -split "`t")[0] }) }
+foreach ($name in $extra) {
+    $extraResult = @{ Name = $name; Category = "Kubectl-Unlisted"; Exists = $false; Error = "Defined in profile but missing from tests/k-aliases.tsv" }
+    $script:TestResults += $extraResult
+    $script:FailedTests += $extraResult
 }
 
 # ============================================
