@@ -78,8 +78,9 @@ Install-Module PSKubectlCompletion -Scope CurrentUser
 # Find your profile path
 $profile
 
-# Copy the profile (adjust source path as needed)
+# Copy the profile and the generated kubectl aliases it loads (adjust source path as needed)
 Copy-Item Microsoft.Powershell_profile.ps1 $PROFILE
+Copy-Item k-aliases.ps1 (Split-Path $PROFILE -Parent)
 ```
 
 3. **Reload your profile:**
@@ -761,8 +762,10 @@ We welcome contributions! Here's how to add new aliases or improve existing ones
    - Check for conflicts: `Get-Alias <proposed-name>`
 
 2. **Include in profile:**
-   - Add function to `Microsoft.Powershell_profile.ps1`
-   - Place in appropriate section (Git, Terraform, or Kubectl)
+   - Git and Terraform: add the function to `Microsoft.Powershell_profile.ps1`
+   - Kubectl: do **not** edit `k-aliases.ps1` (generated). Edit `k-grammar.toml`, then run
+     `python3 tools/generate_aliases.py` (Python 3.11+) and commit both files. Add the new
+     names to `tests/k-aliases.tsv` (`name<TAB>kubectl args`).
 
 3. **Update documentation:**
    - Add to README in appropriate tier
@@ -790,9 +793,13 @@ function kgp { & kubectl get pods $args }
 
 ### Testing Your Changes
 
-1. Run the test suite:
+1. Run the test suites:
    ```powershell
    .\Test-Profile.ps1
+   ```
+   ```bash
+   python3 -m unittest discover -s tests -v          # grammar vs tests/k-aliases.tsv
+   python3 tools/generate_aliases.py --check         # k-aliases.ps1 is up to date
    ```
 
 2. Test manually:

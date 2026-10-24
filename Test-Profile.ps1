@@ -261,7 +261,8 @@ foreach ($line in $manifest) {
 Write-Host "  Checked $($manifest.Count) kubectl aliases" -ForegroundColor Gray
 
 # A function defined twice silently overrides the first (the old kgn bug), so check the source.
-$definedNames = Select-String -Path $profilePath -Pattern '^function (k[a-z]*)\(' |
+$aliasesPath = Join-Path (Split-Path $profilePath -Parent) "k-aliases.ps1"
+$definedNames = Select-String -Path $aliasesPath -Pattern '^function (k[a-z]*)\(' |
     ForEach-Object { $_.Matches[0].Groups[1].Value }
 $duplicates = $definedNames | Group-Object | Where-Object { $_.Count -gt 1 }
 foreach ($dup in $duplicates) {

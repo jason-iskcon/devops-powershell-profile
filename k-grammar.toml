@@ -1,0 +1,289 @@
+# Grammar for the "K system" kubectl aliases (see README.md).
+#
+# tools/generate_aliases.py expands this file into every alias:
+#
+#   k + [z] + verb + resource + modifiers      e.g. k z g p w  ->  kzgpw
+#
+# This file reproduces exactly the 788 names that existed before it was introduced
+# (tests/k-aliases.tsv). It does NOT generate the full cross product: which modifier
+# combinations exist for which resource grew organically, and the blocks below record
+# that as it is. To add combinations, add or extend a block or a [[commands]] row.
+
+# Prefix inserted after "k" for the kube-system namespace.
+[system]
+code = "z"
+args = "--namespace=kube-system"
+
+[verbs]
+g = "get"
+d = "describe"
+x = "delete"
+
+# "" (no resource) is allowed in [[commands]] and means the verb applies to any resource.
+# "n" and "ns" both mean namespaces: "kgno" is nodes, so "kgnso" is namespaces with -o=wide.
+[resources]
+p = "pods"
+de = "deployment"
+sv = "service"
+i = "ingress"
+c = "configmap"
+se = "secret"
+no = "nodes"
+n = "namespaces"
+ns = "namespaces"
+
+# Modifier codes. A table gives a per-verb expansion; "default" applies to other verbs.
+# aa/all are destructive with delete: kxpaa is "delete pods --all" in the current namespace.
+[flags]
+aa = { default = "--all-namespaces", delete = "--all" }
+all = { default = "--all-namespaces", delete = "--all" }
+w = "--watch"
+sl = "--show-labels"
+y = "-o=yaml"
+j = "-o=json"
+o = "-o=wide"
+oyaml = "-o=yaml"
+owide = "-o=wide"
+ojson = "-o=json"
+l = "-l"
+n = "--namespace"
+f = "--recursive -f"
+
+# Blocks: named sets of modifier sequences. Each string is the modifier codes in order,
+# space separated; "" is the bare alias. The alias name is k + [z] + verb + resource
+# + the codes joined together (so "aa y" on "g p" gives kgpaay).
+[blocks]
+# no modifiers, or the -l selector
+bare = ["", "l"]
+# aa on its own
+all_ns = ["aa"]
+# n on its own (--namespace)
+ns_flag = ["n"]
+# f on its own (--recursive -f)
+file = ["f"]
+# wide output, optionally with -l
+wide = ["o", "o l"]
+# wide output with all-namespaces, all as a suffix
+wide_all = ["o all"]
+# exists for get pods only (kgpaay); other resources use aa+oyaml
+all_ns_yaml = ["aa y"]
+# w and/or a format (y j o), optionally ending in -l; o without w is in "wide"
+watch_format = [
+  "j", "w", "y", "j l", "w j", "w l", "w o", "w y", "y l", "w j l", "w o l", "w y l",
+]
+# w/format combinations ending in --namespace
+ns_flag_combos = ["j n", "o n", "w n", "y n", "w j n", "w o n", "w y n"]
+# aa or all with w and/or a format; long format forms follow aa
+all_ns_combos = [
+  "aa ojson", "aa owide", "aa oyaml", "aa w", "j all", "w all", "y all", "aa w j",
+  "aa w o", "aa w y", "w aa j", "w aa o", "w aa y", "w j all", "w o all", "w y all",
+]
+# sl with w, o and -l, any order
+labels = [
+  "sl", "o sl", "sl l", "sl o", "sl w", "w sl", "o sl l", "sl o l", "sl w l", "sl w o",
+  "w o sl", "w sl l", "w sl o", "sl w o l", "w o sl l", "w sl o l",
+]
+# sl with all-namespaces or --namespace, plus w and o, any order
+labels_all_ns = [
+  "aa sl", "sl all", "sl n", "aa o sl", "aa sl o", "aa sl w", "aa w sl", "o all sl",
+  "o sl all", "o sl n", "sl aa o", "sl all w", "sl o aa", "sl o n", "sl w all",
+  "sl w n", "w all sl", "w sl all", "w sl n", "aa sl w o", "aa w o sl", "aa w sl o",
+  "sl all w o", "sl w aa o", "sl w o all", "sl w o n", "w aa o sl", "w all sl o",
+  "w o all sl", "w o sl all", "w o sl n", "w sl aa o", "w sl o aa", "w sl o n",
+]
+# w/o/sl/format combinations ending in f (get only, no resource)
+file_combos = [
+  "j f", "o f", "sl f", "w f", "y f", "o sl f", "sl o f", "sl w f", "w j f", "w o f",
+  "w sl f", "w y f", "sl w o f", "w o sl f", "w sl o f",
+]
+
+# Which blocks each verb + resource gets. "namespaced" rows get the z (kube-system) prefix.
+# Blocks that are missing from a row are gaps in the existing aliases, not mistakes in this
+# file: for example only kgpaay exists, the other resources use kg*aaoyaml.
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = [""]
+blocks = ["bare", "all_ns", "file", "wide", "wide_all", "watch_format", "ns_flag_combos", "all_ns_combos", "labels", "labels_all_ns", "file_combos"]
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = ["p"]
+blocks = ["bare", "all_ns", "ns_flag", "wide", "wide_all", "all_ns_yaml", "watch_format", "ns_flag_combos", "all_ns_combos", "labels", "labels_all_ns"]
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = ["de"]
+blocks = ["bare", "all_ns", "ns_flag", "wide", "wide_all", "watch_format", "ns_flag_combos", "all_ns_combos", "labels", "labels_all_ns"]
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = ["sv", "i", "c", "se"]
+blocks = ["bare", "all_ns", "ns_flag", "wide", "wide_all", "watch_format", "ns_flag_combos", "all_ns_combos"]
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = ["no"]
+blocks = ["bare", "wide", "watch_format"]
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = ["n"]
+blocks = ["bare", "all_ns", "watch_format", "all_ns_combos"]
+
+[[commands]]
+verb = "get"
+namespaced = false
+resources = ["ns"]
+blocks = ["wide", "wide_all"]
+
+[[commands]]
+verb = "describe"
+namespaced = false
+resources = [""]
+blocks = ["bare", "all_ns", "file"]
+
+[[commands]]
+verb = "describe"
+namespaced = false
+resources = ["p", "de", "sv", "i", "c", "se"]
+blocks = ["bare", "all_ns", "ns_flag"]
+
+[[commands]]
+verb = "describe"
+namespaced = false
+resources = ["no"]
+blocks = ["bare"]
+
+[[commands]]
+verb = "describe"
+namespaced = false
+resources = ["n"]
+blocks = ["bare", "all_ns"]
+
+[[commands]]
+verb = "delete"
+namespaced = false
+resources = [""]
+blocks = ["bare", "all_ns", "file"]
+
+[[commands]]
+verb = "delete"
+namespaced = false
+resources = ["p", "de", "sv", "i", "c", "se"]
+blocks = ["bare", "all_ns", "ns_flag"]
+
+[[commands]]
+verb = "delete"
+namespaced = false
+resources = ["n"]
+blocks = ["bare", "all_ns"]
+
+[[commands]]
+verb = "get"
+namespaced = true
+resources = ["", "p", "de"]
+blocks = ["bare", "wide", "watch_format", "labels"]
+
+[[commands]]
+verb = "get"
+namespaced = true
+resources = ["sv", "i", "c", "se"]
+blocks = ["bare", "wide", "watch_format"]
+
+[[commands]]
+verb = "describe"
+namespaced = true
+resources = ["", "p", "de", "sv", "i", "c", "se"]
+blocks = ["bare"]
+
+[[commands]]
+verb = "delete"
+namespaced = true
+resources = ["", "p", "de", "sv", "i", "c", "se"]
+blocks = ["bare", "all_ns"]
+
+
+# Aliases that do not fit the grammar. args is exactly what follows "kubectl".
+
+[[aliases]]
+name = "k"
+args = ""
+
+[[aliases]]
+name = "ka"
+args = "apply --recursive -f"
+
+[[aliases]]
+name = "kak"
+args = "apply -k"
+
+[[aliases]]
+name = "ke"
+args = "exec -i -t"
+
+[[aliases]]
+name = "ken"
+args = "exec -i -t --namespace"
+
+[[aliases]]
+name = "kk"
+args = "kustomize"
+
+[[aliases]]
+name = "kl"
+args = "logs -f"
+
+[[aliases]]
+name = "kln"
+args = "logs -f --namespace"
+
+[[aliases]]
+name = "klp"
+args = "logs -f -p"
+
+[[aliases]]
+name = "kp"
+args = "proxy"
+
+[[aliases]]
+name = "kpf"
+args = "port-forward"
+
+[[aliases]]
+name = "kpfn"
+args = "port-forward --namespace"
+
+[[aliases]]
+name = "krun"
+args = "run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t"
+
+[[aliases]]
+name = "kz"
+args = "--namespace=kube-system"
+
+[[aliases]]
+name = "kza"
+args = "--namespace=kube-system apply --recursive -f"
+
+[[aliases]]
+name = "kze"
+args = "--namespace=kube-system exec -i -t"
+
+[[aliases]]
+name = "kzl"
+args = "--namespace=kube-system logs -f"
+
+[[aliases]]
+name = "kzlp"
+args = "--namespace=kube-system logs -f -p"
+
+[[aliases]]
+name = "kzrun"
+args = "--namespace=kube-system run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t"

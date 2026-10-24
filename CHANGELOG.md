@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dy` and `f` helper functions. They emit strings, so as trailing words kubectl received the
   literal text `dy`/`f` instead of the flags.
 
+### Changed
+- The 788 kubectl functions are now generated from `k-grammar.toml` by
+  `tools/generate_aliases.py` into `k-aliases.ps1`, which the profile dot-sources. The
+  generated functions are byte-for-byte the ones the profile used to contain.
+  `Install-Profile.ps1` copies `k-aliases.ps1` next to the profile; a manual install must too.
+  Editing the aliases now means editing the grammar (see Contribution Guidelines).
+
 ### Added
 - `tests/k-aliases.tsv`: the 788 `k*` names and their kubectl arguments. `Test-Profile.ps1`
   checks every function body against it and fails on duplicate or unlisted definitions.

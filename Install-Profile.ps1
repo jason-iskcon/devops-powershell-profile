@@ -67,11 +67,15 @@ Write-Host "  Profile path: $profilePath" -ForegroundColor Gray
 Write-Host "`n[3/3] Installing profile..." -ForegroundColor Cyan
 
 $sourceProfile = Join-Path $PSScriptRoot "Microsoft.Powershell_profile.ps1"
+# The profile dot-sources the generated kubectl aliases from its own directory.
+$sourceAliases = Join-Path $PSScriptRoot "k-aliases.ps1"
 
-if (-not (Test-Path $sourceProfile)) {
-    Write-Host "  ✗ Source profile not found: $sourceProfile" -ForegroundColor Red
-    Write-Host "    Make sure you're running this script from the profile directory" -ForegroundColor Yellow
-    exit 1
+foreach ($source in @($sourceProfile, $sourceAliases)) {
+    if (-not (Test-Path $source)) {
+        Write-Host "  ✗ Source file not found: $source" -ForegroundColor Red
+        Write-Host "    Make sure you're running this script from the profile directory" -ForegroundColor Yellow
+        exit 1
+    }
 }
 
 if (Test-Path $profilePath) {
@@ -92,6 +96,7 @@ if (Test-Path $profilePath) {
 
 try {
     Copy-Item -Path $sourceProfile -Destination $profilePath -Force
+    Copy-Item -Path $sourceAliases -Destination (Join-Path $profileDir "k-aliases.ps1") -Force
     Write-Host "  ✓ Profile installed successfully!" -ForegroundColor Green
 } catch {
     Write-Host "  ✗ Failed to install profile: $_" -ForegroundColor Red
