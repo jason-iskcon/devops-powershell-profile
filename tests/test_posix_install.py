@@ -160,6 +160,79 @@ class InstallAndUninstall(InstallerCase):
         self.assertEqual([p.name for p in self.prefix.iterdir()], ["my-own-file"])
 
 
+class PartialUninstall(InstallerCase):
+    """The shell files are shared by bash and zsh: removing one shell must not break the other."""
+
+    SHARED = ("k-aliases.sh", "k-completion-data.sh", "k-completion.bash",
+              "k-completion.zsh", "k-init.bash", "k-init.zsh")
+
+    def works(self, shell: str, rc: Path) -> bool:
+        result = sh.run_shell(shell, f". '{rc}'; kzgpw -A", path_prefix=self.bin,
+                              env={"HOME": str(self.home)})
+        return result.stdout.split("\n")[:-1] == [
+            "A --namespace=kube-system", "A get", "A pods", "A --watch", "A -A"]
+
+    def shared_files_present(self) -> bool:
+        return all((self.prefix / name).exists() for name in self.SHARED)
+
+    def setUp(self):
+        super().setUp()
+        self.bashrc.write_text("export B=1\n")
+        self.zshrc.write_text("export Z=1\n")
+
+    @unittest.skipUnless("zsh" in sh.SHELLS, "zsh not installed")
+    def test_uninstalling_bash_only_keeps_zsh_working_until_zsh_is_uninstalled(self):
+        self.ok("--shell", "both")
+        result = self.ok("uninstall", "--shell", "bash")
+        self.assertEqual(self.bashrc.read_text(), "export B=1\n")
+        self.assertIn(BEGIN, self.zshrc.read_text())
+        self.assertTrue(self.shared_files_present(), result.stdout)
+        self.assertIn("still used", result.stdout)
+        self.assertTrue(self.works("zsh", self.zshrc), "zsh broke after uninstalling bash")
+        self.ok("uninstall", "--shell", "zsh")
+        self.assertEqual(self.zshrc.read_text(), "export Z=1\n")
+        self.assertFalse(self.prefix.exists())
+
+    @unittest.skipUnless("bash" in sh.SHELLS, "bash not installed")
+    def test_uninstalling_zsh_only_keeps_bash_working_until_bash_is_uninstalled(self):
+        self.ok("--shell", "both")
+        self.ok("uninstall", "--shell", "zsh")
+        self.assertEqual(self.zshrc.read_text(), "export Z=1\n")
+        self.assertTrue(self.shared_files_present())
+        self.assertTrue(self.works("bash", self.bashrc), "bash broke after uninstalling zsh")
+        self.ok("uninstall", "--shell", "bash")
+        self.assertFalse(self.prefix.exists())
+
+    def test_uninstalling_a_shell_that_was_never_installed_keeps_the_other_one(self):
+        self.ok("--shell", "bash")
+        before = self.snapshot()
+        result = self.ok("uninstall", "--shell", "zsh")
+        self.assertEqual(self.snapshot(), before)
+        self.assertTrue(self.shared_files_present())
+        self.assertIn("no block in", result.stdout)
+
+    def test_a_dry_run_of_a_partial_uninstall_does_not_claim_to_remove_shared_files(self):
+        self.ok("--shell", "both")
+        result = self.ok("uninstall", "--shell", "bash", "--dry-run")
+        self.assertNotIn("would remove the installed files", result.stdout)
+        self.assertIn("still used", result.stdout)
+
+    def test_a_default_uninstall_still_removes_everything(self):
+        self.ok("--shell", "both")
+        self.ok("uninstall")
+        self.assertFalse(self.prefix.exists())
+        self.assertEqual(self.bashrc.read_text(), "export B=1\n")
+        self.assertEqual(self.zshrc.read_text(), "export Z=1\n")
+
+    def test_another_installation_in_a_different_prefix_does_not_keep_these_files(self):
+        other = self.home / "other-prefix"
+        self.ok("--shell", "bash")
+        self.ok("--shell", "zsh", "--prefix", str(other))
+        self.ok("uninstall", "--shell", "bash")
+        self.assertFalse(self.prefix.exists(), "zsh uses a different prefix; nothing here is shared")
+        self.assertTrue((other / "k-init.zsh").exists())
+
+
 class Refusals(InstallerCase):
     def test_damaged_markers_stop_everything_before_any_change(self):
         for label, text in (("begin only", f"x\n{BEGIN}\ny\n"),

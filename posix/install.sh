@@ -219,6 +219,20 @@ warn_collisions() { # names that already resolve to a command, builtin or keywor
 
 # --- uninstall ----------------------------------------------------------------------------
 
+# The copied files are shared by bash and zsh. Succeeds, setting $user_rc, if the rc file of a
+# shell we are NOT uninstalling still has a block that sources them.
+prefix_in_use() {
+    for other in bash zsh; do
+        case " $targets " in *" $other "*) continue ;; esac
+        user_rc=$(rc_path "$other")
+        for t in $targets; do [ "$user_rc" = "$(rc_path "$t")" ] && continue 2; done
+        if has_block "$user_rc" && grep -qF "\"$prefix_ref/$(init_name "$other")\"" "$user_rc"; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 do_uninstall() {
     for t in $targets; do check_rc "$(rc_path "$t")"; done
     for t in $targets; do
@@ -235,6 +249,8 @@ do_uninstall() {
         say "nothing to remove at $prefix"
     elif [ ! -e "$prefix/$MARKER" ]; then
         say "left alone: $prefix was not created by this installer"
+    elif prefix_in_use; then
+        say "kept: $prefix is still used by $user_rc (uninstall that shell too to remove it)"
     elif [ "$dry_run" = 1 ]; then
         say "would remove the installed files from $prefix"
     else
