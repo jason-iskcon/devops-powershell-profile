@@ -37,6 +37,7 @@ POSIX_ALIASES_HEADER = """\
 # Source: k-grammar.toml
 # Regenerate: python3 tools/generate_aliases.py
 # Bash and zsh. Each function runs kubectl with fixed arguments followed by your own ("$@").
+# \\kubectl suppresses alias expansion but still calls a kubectl shell function if you have one.
 """
 
 POSIX_COMPLETION_DATA_HEADER = """\
@@ -288,8 +289,9 @@ def _words_per_line(words: list[str], per_line: int = 10) -> str:
 def render_posix_aliases(aliases: list[Alias]) -> str:
     """Bash/zsh functions: fixed, shell-quoted arguments then "$@". No eval.
 
-    `command kubectl` skips any alias or function the user has named kubectl, so the
-    generated functions behave the same however the shell is configured.
+    `\\kubectl` (a quoted word) stops alias expansion, so a user's `alias kubectl=...` is
+    neither baked into the functions when they are defined nor used when they run, while a
+    user's `kubectl` shell function (a wrapper) is honoured, as in the PowerShell version.
     """
     out = [POSIX_ALIASES_HEADER, "\n__k_names=(\n", _words_per_line([a.name for a in aliases]), ")\n\n"]
     out.append(
@@ -299,8 +301,8 @@ def render_posix_aliases(aliases: list[Alias]) -> str:
         "unset __k_n\n\n"
     )
     for a in aliases:
-        fixed = " ".join(shlex.quote(t) for t in ("kubectl",) + a.args)
-        out.append(f'{a.name}() {{ command {fixed} "$@"; }}\n')
+        fixed = "".join(" " + shlex.quote(t) for t in a.args)
+        out.append(f'{a.name}() {{ \\kubectl{fixed} "$@"; }}\n')
     return "".join(out)
 
 

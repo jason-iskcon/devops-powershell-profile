@@ -145,16 +145,76 @@ class SafetyAndRobustness(unittest.TestCase):
                 self.assertEqual(result.stdout.split("\n")[:-1],
                                  ["A get", "A pods", "A -A", "A version"])
 
-    def test_functions_call_kubectl_not_a_user_function_or_alias_of_that_name(self):
-        scripts = {
-            "bash": "shopt -s expand_aliases; alias kubectl='echo WRONG'; kubectl() { echo WRONG; }",
-            "zsh": "alias kubectl='echo WRONG'; kubectl() { echo WRONG; }",
+    # A user's `kubectl` shell function (a wrapper that adds a context, logs, ...) must be used;
+    # a user's `kubectl` alias must not leak into the generated functions.
+    WRAPPER = (
+        'kubectl() {\n'
+        '    count=$(cat "$COUNT" 2>/dev/null || echo 0); echo $((count + 1)) > "$COUNT"\n'
+        '    echo WRAPPER; printf "W %s\\n" "$@"\n'
+        '    command kubectl "$@"\n'
+        '}\n')
+
+    def wrapper_run(self, shell: str, calls: str, alias: str = "") -> tuple[list[str], int]:
+        """Define the wrapper, then optionally an alias of the same name, then load and call."""
+        count = Path(self.tmp.name) / "wrapper-count"
+        count.write_text("0\n")
+        script = f"{self.WRAPPER}\n{alias}\n. '{sh.POSIX}/k-aliases.sh'\n{calls}\n"
+        result = sh.run_shell(shell, script, path_prefix=self.bin, env={"COUNT": str(count)}, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, "")
+        return result.stdout.split("\n")[:-1], int(count.read_text())
+
+    def test_a_user_kubectl_function_is_called_with_the_forwarded_arguments(self):
+        awkward = awkward_args_shell_text()
+        for shell in sh.SHELLS:
+            with self.subTest(shell=shell):
+                lines, calls = self.wrapper_run(shell, f"kzgpw {awkward}")
+                fixed = ["--namespace=kube-system", "get", "pods", "--watch", *AWKWARD]
+                self.assertEqual(lines, ["WRAPPER", *[f"W {a}" for a in fixed], *[f"A {a}" for a in fixed]])
+                self.assertEqual(calls, 1)
+
+    def test_the_wrapper_runs_exactly_once_per_alias_and_nothing_recurses(self):
+        for shell in sh.SHELLS:
+            with self.subTest(shell=shell):
+                lines, calls = self.wrapper_run(shell, "k version\nkgp\nkxpaa\nkzgpw")
+                self.assertEqual(calls, 4)  # one per call: a loop would count far more (or hang)
+                self.assertEqual(lines.count("WRAPPER"), 4)
+                self.assertEqual(lines.count("A version"), 1)  # the real kubectl was reached each time
+                self.assertEqual(lines.count("A pods"), 3)
+
+    def test_a_user_kubectl_alias_is_not_expanded_in_the_functions(self):
+        before = {
+            "bash": "shopt -s expand_aliases; alias kubectl='echo ALIAS'",
+            "zsh": "alias kubectl='echo ALIAS'",
+        }
+        for shell in sh.SHELLS:
+            with self.subTest(shell=shell, alias="defined before loading"):
+                result = sh.run_shell(shell, f"{before[shell]}\n. '{sh.POSIX}/k-aliases.sh'\nkgp -A",
+                                      path_prefix=self.bin)
+                self.assertEqual(result.stdout.split("\n")[:-1], ["A get", "A pods", "A -A"])
+            with self.subTest(shell=shell, alias="defined after loading"):
+                result = sh.run_shell(shell, f". '{sh.POSIX}/k-aliases.sh'\n{before[shell]}\nkgp -A",
+                                      path_prefix=self.bin)
+                self.assertEqual(result.stdout.split("\n")[:-1], ["A get", "A pods", "A -A"])
+
+    def test_a_wrapper_function_wins_even_when_an_alias_of_the_same_name_exists(self):
+        # alias kubectl='...' is common; the function is what the generated functions must call.
+        before = {
+            "bash": "shopt -s expand_aliases; alias kubectl='echo ALIAS'",
+            "zsh": "alias kubectl='echo ALIAS'",
         }
         for shell in sh.SHELLS:
             with self.subTest(shell=shell):
-                result = sh.run_shell(shell, f"{scripts[shell]}\n. '{sh.POSIX}/k-aliases.sh'\nkgp",
-                                      path_prefix=self.bin)
-                self.assertEqual(result.stdout.split("\n")[:-1], ["A get", "A pods"])
+                lines, calls = self.wrapper_run(shell, "kgp -A", alias=before[shell])
+                self.assertEqual(lines[0], "WRAPPER")
+                self.assertNotIn("ALIAS", "".join(lines))
+                self.assertEqual(calls, 1)
+
+    def test_the_generated_functions_name_kubectl_with_a_backslash(self):
+        text = sh.gen.render_posix_aliases([sh.gen.Alias("kgp", ("get", "pods")), sh.gen.Alias("k", ())])
+        self.assertIn('kgp() { \\kubectl get pods "$@"; }\n', text)
+        self.assertIn('k() { \\kubectl "$@"; }\n', text)
+        self.assertNotIn("command kubectl", text)
 
     def test_renderer_quotes_arguments_even_if_validation_were_bypassed(self):
         # Validation rejects such tokens; the renderer must still never let them split or expand.

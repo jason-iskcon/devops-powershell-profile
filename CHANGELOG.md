@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   injection checks, completion wrapper tests, interactive Tab tests against the real kubectl,
   and installer tests.
 
+### Changed (Bash and Zsh)
+- The functions now call `\kubectl` instead of `command kubectl`, so a user's `kubectl` shell
+  function (a wrapper that adds a context, logs, ...) is honoured, as in PowerShell, while an
+  `alias kubectl=...` is still not expanded. All 788 expansions are unchanged.
+
 ### Removed
 - `gs` (git status) from the README, `Test-Profile.ps1`, the Anki export and the checklist
   count. The real `git-aliases` module does not define it (found on a Windows CI runner), and

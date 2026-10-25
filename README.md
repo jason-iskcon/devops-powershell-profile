@@ -136,15 +136,16 @@ not run yet.
 
 | | PowerShell | Bash / zsh |
 |---|---|---|
-| Definition | functions calling `& kubectl ... $args` | functions calling `command kubectl ... "$@"` |
-| `kubectl` lookup | honours a user alias/function named `kubectl` | skips them (`command`), so the aliases always run the real binary |
+| Definition | functions calling `& kubectl ... $args` | functions calling `\kubectl ... "$@"` |
+| `kubectl` lookup | honours a user alias or function named `kubectl` | honours a user `kubectl` **function** (a wrapper); an **alias** named `kubectl` is not expanded (`\kubectl` suppresses alias expansion, so it is neither baked in when the file loads nor used when the aliases run) |
 | Arguments | splatted with `$args` | forwarded verbatim; nothing is evaluated |
 | Existing aliases with the same name | n/a | removed for the session when the file is loaded (e.g. the oh-my-zsh `kubectl` plugin defines `kgp`, `kdp`, ...) |
 | Completion | PSKubectlCompletion | kubectl's own completion, with each alias' fixed arguments filled in |
 | Git, Terraform, `dy`/`f` | yes / removed | not ported |
 
-The installer warns if a name already exists as a command on `PATH`; the function takes
-precedence. Not supported: fish. Not tested: macOS (the tests ran on Linux), including its
+A `kubectl` wrapper function must call the real binary (`command kubectl "$@"`), not one of
+these aliases, or it would call itself. The installer warns if a name already exists as a
+command on `PATH`; the function takes precedence. Not supported: fish. Not tested: macOS (the tests ran on Linux), including its
 system bash 3.2, whose completion cannot work anyway without bash 4.1+ and bash-completion.
 
 ## Why Learn This System?
