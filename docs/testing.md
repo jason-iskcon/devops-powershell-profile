@@ -1,79 +1,30 @@
 # Testing
 
-## Run the Test Suite
+There are two test suites. `Test-Profile.ps1` checks an installed (or local) PowerShell
+profile. The Python `unittest` suite covers everything else: the grammar and generator, the
+Bash and Zsh functions, completion and installer, and it also drives `Test-Profile.ps1`.
 
-We've included a comprehensive test script to verify all documented aliases work correctly.
+## Check your installation
 
-**Quick Test:**
+**PowerShell**
+
 ```powershell
-# From the profile directory
-.\Test-Profile.ps1
-
-# Or from anywhere (if profile is installed)
-pwsh -File .\Test-Profile.ps1
+.\Test-Profile.ps1                  # every documented alias, and all 788 kubectl expansions
+.\Test-Profile.ps1 -KubectlOnly     # skip the Git and Terraform aliases (third-party modules)
+.\Test-Profile.ps1 -Verbose         # show where each command comes from
 ```
 
-**Note:** The test script will automatically find the profile file if run from the workspace directory, or use your installed profile if run from elsewhere.
+Run from the repository folder it tests the profile there; run from anywhere else it tests
+your installed profile. It exits with 0 when everything passes and 1 otherwise. The checks:
 
-**Skip Execution Tests (faster, only checks if commands exist):**
-```powershell
-.\Test-Profile.ps1 -SkipExecutionTests
-```
+- the 17 Git and 8 Terraform aliases exist;
+- 26 core kubectl aliases exist (base verbs, common resources, output formats);
+- every `k*` function's body matches `tests/k-aliases.tsv` and `tests/k-additions.tsv`
+  exactly, and no `k*` function is defined twice or missing from those lists.
 
-**Interactive Quiz Mode (test your knowledge!):**
-```powershell
-.\Test-Profile.ps1 -Quiz
-```
+A passing run ends like this:
 
-**Verbose Output:**
-```powershell
-.\Test-Profile.ps1 -Verbose
-```
-
-**Only the kubectl functions** (skips the Git and Terraform aliases, which come from third-party modules):
-```powershell
-.\Test-Profile.ps1 -KubectlOnly
-```
-
-**The wider suite** (grammar, generator, Bash and Zsh, installers) is Python's `unittest`:
-```sh
-python3 -m unittest discover -s tests -v
-```
-Tests that need an external tool skip when it is missing: PowerShell 7 (`pwsh`, or set `PWSH`) for the profile and quiz tests, and the real `kubectl` (on `PATH`, or set `KUBECTL`) plus bash-completion for the interactive Tab-completion tests. The Bash/Zsh tests need a POSIX system with `bash` and `zsh`; they do not run on Windows.
-
-## What Gets Tested
-
-The test suite validates:
-
-- ✅ **Git Aliases** - All 17 documented git aliases
-- ✅ **Terraform Aliases** - All 8 terraform commands
-- ✅ **Kubectl Base Commands** - All 8 base verbs (k, kg, kd, kx, etc.)
-- ✅ **Kubectl Resource Commands** - All 11 common resource combinations
-- ✅ **Kubectl Output Formats** - All 7 output format combinations
-- ✅ **Kubectl expansions** - every `k*` function's body is compared with `tests/k-aliases.tsv` and `tests/k-additions.tsv`
-
-## Test Output
-
-The script provides:
-- ✓ Green checkmarks for passing tests
-- ✗ Red X marks for failing tests
-- Summary report with pass/fail counts
-- Exit code 0 on success, 1 on failure (useful for CI/CD)
-
-**Example Output:**
-```
-=== PowerShell Profile Test Suite ===
-Testing all documented aliases...
-
-Loading profile...
-✓ Profile loaded successfully
-
---- Testing Git Aliases ---
-  ✓ ga - git add
-  ✓ gaa - git add --all
-  ✓ gcmsg - git commit -m
-  ...
-
+```text
 --- Testing Kubectl Expansions (tests/k-aliases.tsv, tests/k-additions.tsv) ---
   Checked 788 kubectl aliases
 
@@ -85,7 +36,32 @@ Failed: 0
 ✓ All tests passed!
 ```
 
-## Continuous Integration
+**Bash / Zsh**
+
+```sh
+type kgp            # should print a function running \kubectl get pods "$@"
+kgp --help          # runs kubectl, without touching the cluster
+```
+
+The full Bash and Zsh checks are part of the Python suite below.
+
+## Run the full suite
+
+```sh
+python3 -m unittest discover -s tests -v                       # everything
+python3 -m unittest discover -s tests -p 'test_posix_*.py' -v  # Bash and Zsh only
+python3 tools/generate_aliases.py --check                      # generated files are up to date
+pwsh -NoProfile -File tests/Smoke-Install.ps1                  # PowerShell installer, in a temp dir
+```
+
+It needs Python 3.11 or later. Tests that need a tool you don't have are skipped:
+
+- PowerShell 7 (`pwsh`, or set `PWSH`) for the profile and quiz tests;
+- `bash` and `zsh` for the shell tests, which need a POSIX system and do not run on Windows;
+- the real `kubectl` (on `PATH`, or set `KUBECTL`) and bash-completion for the interactive
+  Tab-completion tests.
+
+## Continuous integration
 
 `.github/workflows/ci.yml` runs four jobs:
 
@@ -98,15 +74,3 @@ Failed: 0
   the real modules.
 - **Windows PowerShell 5.1:** the installer smoke test and `Test-Profile.ps1 -KubectlOnly` with
   stand-in modules.
-
-## Manual Testing
-
-To manually verify a specific alias:
-
-```powershell
-# Check if alias exists
-Get-Command kgp
-
-# Test execution (be careful with destructive commands!)
-kg pods --help  # Safe test
-```

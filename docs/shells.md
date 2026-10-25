@@ -1,8 +1,9 @@
 # Shell differences
 
-The kubectl "K" system works in PowerShell, bash and zsh. Only the K system is ported; the Git
-and Terraform aliases and the PowerShell helpers are not. All 788 names and their expansions are
-the same, including the destructive ones (`kxpaa` is still `kubectl delete pods --all`).
+The 788 kubectl aliases work in PowerShell, Bash and Zsh, with the same names and expansions,
+including the destructive ones (`kxpaa` is `kubectl delete pods --all` everywhere). The Git and
+Terraform aliases, the other helpers, the quiz, the Anki export and usage tracking are
+PowerShell only.
 
 ## Tab completion in Bash and Zsh
 

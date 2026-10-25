@@ -42,7 +42,7 @@ We welcome contributions! Here's how to add new aliases or improve existing ones
    ```powershell
    .\Test-Profile.ps1
    ```
-   ```bash
+   ```sh
    python3 -m unittest discover -s tests -v          # grammar vs the manifests, quiz, validation
    python3 tools/generate_aliases.py --check         # the generated files are up to date
    pwsh -NoProfile -File tests/Smoke-Install.ps1     # installs into a temp dir and tests the result
@@ -50,16 +50,16 @@ We welcome contributions! Here's how to add new aliases or improve existing ones
    Tests that need PowerShell 7 (`pwsh`, or set `PWSH`), kubectl, bash or zsh are skipped when
    the tool is missing. CI runs everything on Linux and runs the installer smoke test on Windows.
 
-2. Test manually:
+2. Try the alias and check nothing else uses the name:
    ```powershell
-   . $PROFILE
-   <your-alias> --help  # Test execution
+   .\Install-Profile.ps1 -SkipModules -Force; . $PROFILE
+   Get-Command <your-alias> -All     # one definition only
+   <your-alias> --help
    ```
-
-3. Check for conflicts:
-   ```powershell
-   Get-Alias <your-alias>
-   Get-Command <your-alias>
+   ```sh
+   sh posix/install.sh && exec "$SHELL"
+   type -a <your-alias>              # one definition only
+   <your-alias> --help
    ```
 
 ## Pull Request Checklist

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The README is split into pages under `docs/` (installation, kubectl aliases, Git and
   Terraform aliases, shell differences, learning, troubleshooting, testing) and a root
   `CONTRIBUTING.md`. The README keeps the overview, a "what works where" table and links.
+- The documentation no longer assumes PowerShell: the README is titled "DevOps shell aliases"
+  and includes the quick start (`QUICKSTART.md` is removed), troubleshooting and testing give
+  Bash/Zsh steps next to PowerShell ones, and examples that work in every shell are marked as
+  shell code.
 
 ### Fixed (documentation)
 - The typing-savings table had wrong character counts; the unsupported "100+ hours per year"
@@ -21,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   describes the grammar, `tests/k-additions.tsv`, and where Git aliases come from.
 - The example `Test-Profile.ps1` output shows the real total (839, including the 788 kubectl
   expansion checks), and the CI description lists the four jobs.
+- The kubectl page documents the real modifier order (`kgpwy` exists, `kgpyw` does not) and the
+  standalone aliases that were missing (`kak`, `kk`, `klp`, `kp`, `kpf`, `krun` and their
+  variants); the learning plan no longer suggests `kzgpaay`, which does not exist.
+- The Terraform page says that `ti`, `tp`, `ta`, `td`, `tv` and `tfmt` ignore extra arguments.
+- `Test-Profile.ps1 -SkipExecutionTests` is no longer documented: the switch has no effect.
 - The profile's other helpers (`tf`, `grep`, `touch`, `export`, `focus`, `relax`, `cd..`) and
   its change of directory to `~/Workspace` are documented.
 

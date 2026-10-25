@@ -16,21 +16,20 @@
 | macOS (any shell, including its bash 3.2) | **Not tested** | Nothing has been run on macOS |
 | Fish and other shells | Not supported | |
 
-Bash and Zsh get the kubectl "K system" only. The Git and Terraform aliases and the other
-PowerShell helpers are not ported; see [Shell differences](shells.md).
+All three shells get the 788 kubectl aliases. The Git and Terraform aliases and the other
+helpers are PowerShell only; see [Shell differences](shells.md).
 
 What you need:
 
-- **PowerShell profile:** the PowerShell modules `posh-git`, `git-aliases` and `PSKubectlCompletion` (`Install-Profile.ps1` installs them for the current user), and `kubectl`.
-- **Bash and Zsh:** `kubectl` for tab completion. Bash completion also needs bash 4.1 or later and the bash-completion package (v2); Zsh completion needs `compinit`.
+- **kubectl**, in every shell.
+- **PowerShell:** the PowerShell modules `posh-git`, `git-aliases` and `PSKubectlCompletion` (`Install-Profile.ps1` installs them for the current user).
+- **Bash and Zsh:** nothing else to use the aliases. Bash tab completion also needs bash 4.1 or later and the bash-completion package (v2); Zsh completion needs `compinit`.
 - **Python 3.11 or later** is only needed to regenerate the alias files or run the tests, not to use the aliases.
 - Live resource-name completion (for example pod names) comes from kubectl and needs a reachable cluster; the tests do not cover it.
 
 ## PowerShell
 
-### Quick install (recommended)
-
-Run the automated installation script:
+### Install with the script
 
 ```powershell
 # From the profile directory
@@ -49,9 +48,9 @@ The script will:
 3. Copy the profile file and `k-aliases.ps1` (the generated kubectl aliases it loads) to the correct location
 4. Back up an existing profile when run with `-Force`; without it, ask before overwriting
 
-### Manual install
+### Install by hand
 
-1. **Install PowerShell modules** (requires admin or use `-Scope CurrentUser`):
+1. **Install the PowerShell modules** (as admin, or with `-Scope CurrentUser` as here):
 
 ```powershell
 Install-Module posh-git -Scope CurrentUser
@@ -59,7 +58,7 @@ Install-Module git-aliases -Scope CurrentUser
 Install-Module PSKubectlCompletion -Scope CurrentUser
 ```
 
-2. **Copy the profile file:**
+2. **Copy the profile and `k-aliases.ps1`:**
 
 ```powershell
 # Find your profile path
@@ -70,7 +69,7 @@ Copy-Item Microsoft.Powershell_profile.ps1 $PROFILE
 Copy-Item k-aliases.ps1 (Split-Path $PROFILE -Parent)
 ```
 
-3. **Reload your profile:**
+3. **Reload the profile:**
 
 ```powershell
 . $PROFILE
@@ -111,7 +110,7 @@ precedence. For tab completion and how the shells differ, see [Shell differences
 
 ## Upgrading from 2.0.0
 
-Re-run `Install-Profile.ps1` (add `-Force` to back up and replace your current profile), then open a new shell. Three things differ from 2.0.0:
+2.0.0 was PowerShell only. Re-run `Install-Profile.ps1` (add `-Force` to back up and replace your current profile), then open a new shell. Three things differ from 2.0.0:
 
 1. **`dy` and `f` are gone.** Write `--dry-run=client -o=yaml` and `--force --grace-period=0`.
 2. **`kgn`, `kdn` and `kxn` now mean `get|describe|delete namespaces`**, as documented. In 2.0.0 a duplicate definition made them `... --namespace`.
