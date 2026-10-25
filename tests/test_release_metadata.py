@@ -51,5 +51,21 @@ class VersionIsConsistent(unittest.TestCase):
             self.assertTrue(tag.startswith(f"v{version}"), f"checklist tags {tag}, release is v{version}")
 
 
+class ReleaseNotesWorkOnTheReleasesPage(unittest.TestCase):
+    """The draft is pasted into a GitHub Release, where a repository-relative link goes nowhere."""
+
+    def test_release_notes_have_no_relative_links(self):
+        notes = (ROOT / "release-notes" / f"v{VersionIsConsistent().changelog_version()}.md")
+        text = notes.read_text(encoding="utf-8")
+        relative = [target for target in re.findall(r"\]\(([^)\s]+)\)", text)
+                    if not re.match(r"(https?://|mailto:|#)", target)]
+        self.assertEqual(relative, [], "use absolute URLs in release-notes/*.md")
+
+    def test_the_changelog_link_points_at_the_tagged_file_of_this_release(self):
+        version = VersionIsConsistent().changelog_version()
+        text = (ROOT / "release-notes" / f"v{version}.md").read_text(encoding="utf-8")
+        self.assertIn(f"https://github.com/jason-iskcon/devops-powershell-profile/blob/v{version}/CHANGELOG.md", text)
+
+
 if __name__ == "__main__":
     unittest.main()
