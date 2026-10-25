@@ -1,0 +1,8 @@
+# Shell code and generated files must keep LF line endings on every platform.
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+posix/* text eol=lf
+tests/*.tsv text eol=lf
+k-grammar.toml text eol=lf
+k-aliases.ps1 text eol=lf

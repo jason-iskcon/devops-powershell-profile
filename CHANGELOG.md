@@ -23,6 +23,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `dy` and `f` helper functions. They emit strings, so as trailing words kubectl received the
   literal text `dy`/`f` instead of the flags.
 
+### Added (Bash and Zsh)
+- `posix/`: the 788 K-system aliases as bash/zsh functions generated from `k-grammar.toml`
+  (`k-aliases.sh`), with fixed arguments shell-quoted and `"$@"` forwarding; no `eval`.
+- kubectl-aware tab completion for bash and zsh: each alias completes as the `kubectl`
+  command it stands for, using kubectl's own completion (`k-completion.bash`, `.zsh`).
+- `posix/install.sh`: idempotent, reversible, non-destructive installer for `~/.bashrc` and
+  `~/.zshrc` (one marked block, backups that are never overwritten, writes through symlinks).
+- Tests: parity of every function with the manifests in bash and zsh, argument-forwarding and
+  injection checks, completion wrapper tests, interactive Tab tests against the real kubectl,
+  and installer tests.
+
 ### Changed
 - The 788 kubectl functions are now generated from `k-grammar.toml` by
   `tools/generate_aliases.py` into `k-aliases.ps1`, which the profile dot-sources. The

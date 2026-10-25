@@ -19,8 +19,41 @@ jobs:
       - name: k-aliases.ps1 is up to date
         run: python tools/generate_aliases.py --check
       # pwsh is preinstalled on GitHub's Ubuntu runners; tests that need it skip if it is missing.
-      - name: Unit tests
-        run: python -m unittest discover -s tests -v
+      - name: Grammar and generator tests
+        run: python -m unittest discover -s tests -p 'test_generate_aliases.py' -v
+      - name: Test-Profile.ps1 (quiz regression)
+        run: python -m unittest discover -s tests -p 'test_test_profile.py' -v
+
+  posix:
+    name: Bash and zsh (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install zsh, bash-completion and ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y zsh bash-completion shellcheck
+      - name: Install kubectl (checksum verified)
+        run: |
+          version=$(curl -fsSL https://dl.k8s.io/release/stable.txt)
+          curl -fsSLO "https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl"
+          curl -fsSLO "https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl.sha256"
+          echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c -
+          sudo install -m 0755 kubectl /usr/local/bin/kubectl
+      # The tests skip what is missing; make a missing tool a failure here instead.
+      - name: Check the tools the tests need are present
+        run: |
+          for tool in bash zsh kubectl; do command -v "$tool"; done
+          test -f /usr/share/bash-completion/bash_completion
+      - name: Generated files are up to date
+        run: python tools/generate_aliases.py --check
+      - name: ShellCheck
+        run: |
+          shellcheck -s sh posix/install.sh
+          shellcheck -s bash posix/k-aliases.sh posix/k-completion-data.sh posix/k-completion.bash posix/k-init.bash
+      - name: Bash and zsh tests
+        run: python -m unittest discover -s tests -p 'test_posix_*.py' -v
 
   windows-install-smoke:
     name: Installer and generated functions (Windows)

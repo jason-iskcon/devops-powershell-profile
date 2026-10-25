@@ -24,6 +24,7 @@ See [How to use](#how-to-use) for detailed installation instructions.
 ## Table of Contents
 
 - [How to use](#how-to-use)
+- [Bash and Zsh (Linux and macOS)](#bash-and-zsh-linux-and-macos)
 - [Why Learn This System?](#why-learn-this-system)
 - [Command Aliases](#command-aliases)
   - [Git - The "G" System](#git---the-g-system-)
@@ -98,6 +99,50 @@ Test that everything works:
 ```
 
 All tests should pass! ✅
+
+## Bash and Zsh (Linux and macOS)
+
+The kubectl "K" system also works in bash and zsh. Only the K system is ported; the Git and
+Terraform aliases and the PowerShell helpers are not. All 788 names and their expansions are
+the same, including the destructive ones (`kxpaa` is still `kubectl delete pods --all`).
+
+```sh
+python3 tools/generate_aliases.py     # only if posix/ is missing or you changed k-grammar.toml
+sh posix/install.sh                   # bash or zsh, chosen from $SHELL
+sh posix/install.sh --shell both      # or: bash, zsh
+sh posix/install.sh --dry-run         # show what would change
+sh posix/install.sh uninstall         # remove the block and the copied files
+```
+
+The installer copies the shell files to `${XDG_DATA_HOME:-~/.local/share}/devops-k-aliases`
+and adds one marked block to `~/.bashrc` and/or `~/.zshrc` that sources them. It changes
+nothing else, backs up an rc file before editing it (backups are never overwritten), writes
+through symlinks, does nothing when run again, and `uninstall` puts the rc files back exactly
+as they were (a file that did not end in a newline gains one). Use `--bashrc ~/.bash_profile`
+if your terminal starts login shells, as macOS Terminal does. `ZDOTDIR` is honoured.
+
+**Tab completion** understands what each alias stands for: `kzgp <TAB>` completes like
+`kubectl --namespace=kube-system get pods <TAB>`, so flags, flag values and (with a reachable
+cluster) resource names come from kubectl itself and are scoped the same way. It needs
+`kubectl` on `PATH`; bash also needs bash 4.1+ and the bash-completion package (v2), as
+kubectl's own bash completion does. kubectl's completion is loaded on first use, so shell
+start-up stays fast. In zsh, completion is registered at the first prompt if `compinit` has
+not run yet.
+
+**Differences from the PowerShell version**
+
+| | PowerShell | Bash / zsh |
+|---|---|---|
+| Definition | functions calling `& kubectl ... $args` | functions calling `command kubectl ... "$@"` |
+| `kubectl` lookup | honours a user alias/function named `kubectl` | skips them (`command`), so the aliases always run the real binary |
+| Arguments | splatted with `$args` | forwarded verbatim; nothing is evaluated |
+| Existing aliases with the same name | n/a | removed for the session when the file is loaded (e.g. the oh-my-zsh `kubectl` plugin defines `kgp`, `kdp`, ...) |
+| Completion | PSKubectlCompletion | kubectl's own completion, with each alias' fixed arguments filled in |
+| Git, Terraform, `dy`/`f` | yes / removed | not ported |
+
+The installer warns if a name already exists as a command on `PATH`; the function takes
+precedence. Not supported: fish, and bash completion on macOS's system bash 3.2 (the aliases
+themselves work there; install a newer bash for completion).
 
 ## Why Learn This System?
 
@@ -522,6 +567,11 @@ You can integrate this into CI/CD pipelines:
 - name: Test PowerShell Profile
   run: pwsh -File ./Test-Profile.ps1
 ```
+
+This repository's own workflow (`.github/workflows/ci.yml`) also runs the generator and
+PowerShell tests, the bash/zsh tests (`python3 -m unittest discover -s tests -p 'test_posix_*.py'`,
+which need bash, zsh, kubectl and bash-completion, and skip what is missing) and ShellCheck on
+Linux, and the installer smoke test on Windows.
 
 ### Manual Testing
 
