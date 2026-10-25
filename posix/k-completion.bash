@@ -31,7 +31,9 @@ __k_complete() {
     COMP_WORDS=(kubectl "${__k_implicit[@]}" "${COMP_WORDS[@]:1}")
     COMP_CWORD=$((COMP_CWORD + ${#__k_implicit[@]}))
 
-    __start_kubectl
+    # kubectl's script needs bash-completion's helper functions; if that package is not loaded
+    # in this shell, do nothing rather than print "command not found" on every Tab.
+    __start_kubectl 2>/dev/null
 }
 
 # shellcheck disable=SC2154  # __k_names is defined by k-aliases.sh

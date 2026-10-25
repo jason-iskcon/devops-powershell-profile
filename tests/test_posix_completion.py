@@ -84,8 +84,25 @@ class BashWrapper(unittest.TestCase):
     def test_does_nothing_quietly_when_kubectl_is_not_installed(self):
         script = BASH_STUB.replace("__start_kubectl()", "__unused()")  # force the lazy-load path
         script += "COMP_WORDS=(kgp x); COMP_CWORD=1; COMP_LINE='kgp x'; COMP_POINT=5\n__k_complete; echo rc=$?\n"
-        result = sh.run_shell("bash", script)
+        empty = tempfile.TemporaryDirectory()  # a PATH with no kubectl, wherever the runner put it
+        self.addCleanup(empty.cleanup)
+        result = sh.run_shell("bash", script, path=empty.name)
         self.assertEqual((result.stdout, result.stderr), ("rc=0\n", ""))
+
+    def test_stays_silent_when_bash_completion_is_not_loaded(self):
+        # kubectl's completion calls bash-completion helpers; without them Tab must not print
+        # "command not found" on every press. A fake kubectl whose script needs a missing helper.
+        bin_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(bin_dir.cleanup)
+        sh.write_executable(Path(bin_dir.name) / "kubectl", (
+            "#!/bin/sh\n"
+            'if [ "$1 $2" = "completion bash" ]; then\n'
+            "  echo '__start_kubectl() { _get_comp_words_by_ref cur prev words cword; }'\n"
+            "fi\n"))
+        script = BASH_STUB.replace("__start_kubectl()", "__unused()")
+        script += "COMP_WORDS=(kgp x); COMP_CWORD=1; COMP_LINE='kgp x'; COMP_POINT=5\n__k_complete\n"
+        result = sh.run_shell("bash", script, path_prefix=Path(bin_dir.name))
+        self.assertEqual((result.stdout, result.stderr), ("", ""))
 
     def test_every_name_is_registered(self):
         result = sh.run_shell("bash", f"{BASH_STUB}\ncomplete -p | grep -c ' -F __k_complete '")

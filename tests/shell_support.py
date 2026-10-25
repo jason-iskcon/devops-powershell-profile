@@ -50,8 +50,10 @@ def shell_argv(shell: str, *args: str) -> list[str]:
 
 
 def run_shell(shell: str, script: str, *, env: dict | None = None, path_prefix: Path | None = None,
-              timeout: int = 120) -> subprocess.CompletedProcess:
-    path = SAFE_PATH if path_prefix is None else f"{path_prefix}:{SAFE_PATH}"
+              path: str | None = None, timeout: int = 120) -> subprocess.CompletedProcess:
+    """Run a script; `path` replaces PATH entirely, `path_prefix` goes in front of the default."""
+    if path is None:
+        path = SAFE_PATH if path_prefix is None else f"{path_prefix}:{SAFE_PATH}"
     full_env = {"PATH": path, "HOME": "/nonexistent", "LANG": "C.UTF-8", **(env or {})}
     return subprocess.run(shell_argv(shell, "-c", script), capture_output=True, text=True,
                           env=full_env, timeout=timeout, encoding="utf-8")
