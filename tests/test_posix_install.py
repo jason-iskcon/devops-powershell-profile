@@ -248,6 +248,37 @@ class Refusals(InstallerCase):
                 self.assertFalse(self.prefix.exists())
                 self.assertNotEqual(self.run_installer("uninstall").returncode, 0)
 
+    def test_markers_in_the_wrong_order_are_rejected_without_touching_anything(self):
+        # One begin and one end marker pass a count check, but with the end first the awk
+        # "replace until the end marker" would swallow everything after the begin marker.
+        cases = {
+            "end then begin": f"top\n{END}\nmiddle\n{BEGIN}\nbottom\nmore\n",
+            "end then begin, adjacent": f"{END}\n{BEGIN}\nkeep me\n",
+            "reversed copy of a real block": f"before\n{END}\nstale\n{BEGIN}\nafter\n",
+        }
+        for label, text in cases.items():
+            for action in (("--shell", "both"), ("uninstall",)):
+                with self.subTest(case=label, action=action[0]):
+                    self.bashrc.write_text(text)
+                    self.zshrc.write_text("alias ll=ls\n")
+                    before = self.snapshot()
+                    result = self.run_installer(*action)
+                    self.assertNotEqual(result.returncode, 0, result.stdout)
+                    self.assertIn("out of order", result.stderr)
+                    self.assertEqual(self.snapshot(), before, "nothing may change")
+                    self.assertEqual(self.bashrc.read_text(), text)
+                    self.assertFalse(self.prefix.exists())
+
+    def test_a_reversed_pair_in_the_other_shells_file_also_stops_the_run(self):
+        # Checked for every selected file before the first write, so no half-finished install.
+        self.bashrc.write_text("export B=1\n")
+        self.zshrc.write_text(f"{END}\n{BEGIN}\nkeep\n")
+        before = self.snapshot()
+        result = self.run_installer("--shell", "both")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.snapshot(), before)
+        self.assertFalse(self.prefix.exists())
+
     def test_a_directory_not_created_by_the_installer_is_never_used_or_removed(self):
         self.prefix.mkdir(parents=True)
         (self.prefix / "precious").write_text("mine\n")

@@ -103,13 +103,22 @@ block_for() {
 
 # --- rc file editing ----------------------------------------------------------------------
 
-check_rc() { # refuse to touch a file whose markers are not exactly one begin and one end
+check_rc() { # refuse to touch a file whose markers are not exactly one begin, then one end
     [ -d "$1" ] && die "$1 is a directory"
     [ -e "$1" ] || return 0
     begins=$(grep -cxF "$BEGIN" "$1" || true)
     ends=$(grep -cxF "$END" "$1" || true)
     if [ "$begins" != "$ends" ] || [ "$begins" -gt 1 ]; then
         die "$1 has damaged $BEGIN markers ($begins begin, $ends end); fix it by hand, nothing was changed"
+    fi
+    if [ "$begins" = 1 ]; then
+        # Counting is not enough: with the end first, replacing "from begin to end" would swallow
+        # everything after the begin marker.
+        begin_line=$(grep -nxF "$BEGIN" "$1" | cut -d: -f1)
+        end_line=$(grep -nxF "$END" "$1" | cut -d: -f1)
+        if [ "$begin_line" -ge "$end_line" ]; then
+            die "$1 has damaged $BEGIN markers (the end marker is before the begin marker, so they are out of order); fix it by hand, nothing was changed"
+        fi
     fi
 }
 
