@@ -29,7 +29,7 @@ POWERSHELL_HEADER = """\
 # GENERATED FILE - do not edit.
 # Source: k-grammar.toml
 # Regenerate: python3 tools/generate_aliases.py
-# Naming scheme: see README.md ("Kubectl - The K System").
+# Naming scheme: see docs/kubectl.md.
 """
 
 POSIX_ALIASES_HEADER = """\

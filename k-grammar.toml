@@ -1,4 +1,4 @@
-# Grammar for the "K system" kubectl aliases (see README.md).
+# Grammar for the "K system" kubectl aliases (see docs/kubectl.md).
 #
 # tools/generate_aliases.py expands this file into every alias:
 #

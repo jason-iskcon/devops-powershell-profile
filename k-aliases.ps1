@@ -1,7 +1,7 @@
 # GENERATED FILE - do not edit.
 # Source: k-grammar.toml
 # Regenerate: python3 tools/generate_aliases.py
-# Naming scheme: see README.md ("Kubectl - The K System").
+# Naming scheme: see docs/kubectl.md.
 function k() { & kubectl $args }
 function ka() { & kubectl apply --recursive -f $args }
 function kak() { & kubectl apply -k $args }
