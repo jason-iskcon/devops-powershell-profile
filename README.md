@@ -141,8 +141,8 @@ not run yet.
 | Git, Terraform, `dy`/`f` | yes / removed | not ported |
 
 The installer warns if a name already exists as a command on `PATH`; the function takes
-precedence. Not supported: fish, and bash completion on macOS's system bash 3.2 (the aliases
-themselves work there; install a newer bash for completion).
+precedence. Not supported: fish. Not tested: macOS (the tests ran on Linux), including its
+system bash 3.2, whose completion cannot work anyway without bash 4.1+ and bash-completion.
 
 ## Why Learn This System?
 
