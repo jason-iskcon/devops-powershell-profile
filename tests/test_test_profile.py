@@ -193,3 +193,8 @@ class DocumentedGitAliasesAreExactlyTheTestedOnes(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DeliberateFailure(unittest.TestCase):
+    def test_fails_on_purpose(self):
+        self.fail("deliberate failure to show that the PowerShell step fails")
