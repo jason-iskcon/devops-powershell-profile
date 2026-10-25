@@ -19,7 +19,6 @@ $aliases += @{Front="git pull"; Back="gl"; Category="Git - Tier 1"; Mnemonic="G 
 $aliases += @{Front="git checkout"; Back="gco"; Category="Git - Tier 2"; Mnemonic="G + CheckOut"}
 $aliases += @{Front="git checkout -b"; Back="gcb"; Category="Git - Tier 2"; Mnemonic="G + Checkout Branch"}
 $aliases += @{Front="git branch"; Back="gbr"; Category="Git - Tier 2"; Mnemonic="G + BRanch"}
-$aliases += @{Front="git status"; Back="gs"; Category="Git - Tier 3"; Mnemonic="G + Status"}
 $aliases += @{Front="git diff"; Back="gd"; Category="Git - Tier 3"; Mnemonic="G + Diff"}
 $aliases += @{Front="git log"; Back="glog"; Category="Git - Tier 4"; Mnemonic="G + LOG (full word)"}
 

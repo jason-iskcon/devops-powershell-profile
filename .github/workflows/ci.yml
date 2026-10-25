@@ -69,3 +69,8 @@ jobs:
       - name: Smoke test Install-Profile.ps1 and Test-Profile.ps1
         shell: pwsh
         run: ./tests/Smoke-Install.ps1
+      # The normal full suite (Git and Terraform aliases included) against the real modules:
+      # every documented alias must exist, so nothing unsupported may be expected.
+      - name: Full Test-Profile.ps1 with the real modules
+        shell: pwsh
+        run: ./Test-Profile.ps1

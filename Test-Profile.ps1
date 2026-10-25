@@ -111,7 +111,6 @@ if (-not $KubectlOnly) {
         @{Name="gcb"; Desc="git checkout -b"},
         @{Name="gbr"; Desc="git branch"},
         @{Name="gbd"; Desc="git branch -d"},
-        @{Name="gs"; Desc="git status"},
         @{Name="gd"; Desc="git diff"},
         @{Name="gds"; Desc="git diff --staged"},
         @{Name="gst"; Desc="git stash"},

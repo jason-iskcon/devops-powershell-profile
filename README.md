@@ -212,10 +212,9 @@ gbd     - git branch -d              (G + Branch Delete)
 </details>
 
 <details>
-<summary><strong>▶ Tier 3: Status, Diff & Stash</strong> (Click to expand)</summary>
+<summary><strong>▶ Tier 3: Diff & Stash</strong> (Click to expand)</summary>
 
 ```
-gs      - git status                 (G + Status)
 gd      - git diff                   (G + Diff)
 gds     - git diff --staged          (G + Diff Staged)
 gst     - git stash                  (G + STash)
@@ -524,7 +523,7 @@ pwsh -File .\Test-Profile.ps1
 
 The test suite validates:
 
-- ✅ **Git Aliases** - All 18 documented git aliases
+- ✅ **Git Aliases** - All 17 documented git aliases
 - ✅ **Terraform Aliases** - All 8 terraform commands
 - ✅ **Kubectl Base Commands** - All 8 base verbs (k, kg, kd, kx, etc.)
 - ✅ **Kubectl Resource Commands** - All 11 common resource combinations

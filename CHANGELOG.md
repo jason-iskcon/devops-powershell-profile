@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   injection checks, completion wrapper tests, interactive Tab tests against the real kubectl,
   and installer tests.
 
+### Removed
+- `gs` (git status) from the README, `Test-Profile.ps1`, the Anki export and the checklist
+  count. The real `git-aliases` module does not define it (found on a Windows CI runner), and
+  defining it in the profile would shadow Ghostscript's `gs`. The Windows CI job now runs the
+  full `Test-Profile.ps1` against the real modules, and a test keeps the documented and tested
+  Git aliases identical.
+
 ### Fixed (Bash and Zsh installer)
 - `uninstall --shell bash` deleted the shared files while `~/.zshrc` still sourced them (and
   vice versa, and also when the other shell was never installed). The shared files are now kept
