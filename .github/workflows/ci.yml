@@ -80,6 +80,7 @@ jobs:
   windows-powershell-5-1:
     name: Installer and profile under Windows PowerShell 5.1
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Show the PowerShell version in use
@@ -88,9 +89,15 @@ jobs:
       - name: Install the PowerShell modules the profile imports
         shell: powershell
         run: |
+          # Windows PowerShell 5.1 asks interactively to bootstrap the NuGet provider (which hangs in
+          # CI), so install it explicitly and never prompt.
+          $ProgressPreference = 'SilentlyContinue'
+          $ConfirmPreference = 'None'
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force | Out-Null
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          Install-Module posh-git, git-aliases, PSKubectlCompletion -Scope CurrentUser -Force
+          Install-Module posh-git, git-aliases, PSKubectlCompletion -Scope CurrentUser -Force -Confirm:$false
+          Get-Module -ListAvailable posh-git, git-aliases, PSKubectlCompletion | Select-Object Name, Version
       - name: Smoke test Install-Profile.ps1 and Test-Profile.ps1
         shell: powershell
         run: ./tests/Smoke-Install.ps1
