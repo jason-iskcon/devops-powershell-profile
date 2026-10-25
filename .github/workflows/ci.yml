@@ -74,3 +74,26 @@ jobs:
       - name: Full Test-Profile.ps1 with the real modules
         shell: pwsh
         run: ./Test-Profile.ps1
+
+  # The other Windows job uses PowerShell 7 (`shell: pwsh`). The profile has always said it supports
+  # Windows PowerShell 5.1 too, which is a different executable with its own module folders.
+  windows-powershell-5-1:
+    name: Installer and profile under Windows PowerShell 5.1
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show the PowerShell version in use
+        shell: powershell
+        run: $PSVersionTable.PSVersion.ToString()
+      - name: Install the PowerShell modules the profile imports
+        shell: powershell
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module posh-git, git-aliases, PSKubectlCompletion -Scope CurrentUser -Force
+      - name: Smoke test Install-Profile.ps1 and Test-Profile.ps1
+        shell: powershell
+        run: ./tests/Smoke-Install.ps1
+      - name: Full Test-Profile.ps1 with the real modules
+        shell: powershell
+        run: ./Test-Profile.ps1
