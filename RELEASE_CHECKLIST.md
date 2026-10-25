@@ -3,9 +3,11 @@
 `[x]` means it was done **and the evidence is named**. `[ ]` means it is open: either an owner
 action, or something that has **not** been verified. Nothing here is ticked on assumption.
 
-Evidence was gathered on release-candidate code commit `cd15814` (branch `release/rc-prep`, based on
-`main` at merge commit `11341d1`); later commits change documentation only. Local tool versions: bash 5.2.21, zsh 5.9, PowerShell 7.4.6,
-kubectl v1.37.1 (checksum verified), ShellCheck 0.11.0, Python 3.13. CI: [run 40152676325](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40152676325), all four jobs green.
+Evidence was gathered on the reviewed release-preparation head `3d92fa7` (PR #2), which was merged
+into `main` as merge commit `7728eca`; the release-finalisation commit after it changes only the
+release date, this checklist and the release notes. Local tool versions: bash 5.2.21, zsh 5.9,
+PowerShell 7.4.6, kubectl v1.37.1 (checksum verified), ShellCheck 0.11.0, Python 3.13. CI on the
+merge commit: [run 40164237059](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40164237059), all four jobs green.
 
 ## 1. Version and metadata
 
@@ -13,14 +15,14 @@ kubectl v1.37.1 (checksum verified), ShellCheck 0.11.0, Python 3.13. CI: [run 40
       section — `python3 -m unittest discover -s tests -p test_release_metadata.py`.
 - [x] Release notes exist for this version: `release-notes/v3.0.0.md` (same test).
 - [x] Version assessment done: **major (3.0.0)** — see "Why 3.0.0" below.
-- [ ] Owner confirms 3.0.0 (the only places that change if not: README banner, profile line 1,
-      CHANGELOG heading, `release-notes/` file name, the tag commands below — the metadata test
-      fails until they agree).
-- [ ] Fill in the release date in the CHANGELOG heading (`## [3.0.0] - YYYY-MM-DD`).
-- [ ] Decide whether to tag the original commit `7256473` as `v2.0.0`. The repository has **no tags
-      and no GitHub releases**, although the CHANGELOG describes 1.0.0 and 2.0.0 (and dates 2.0.0 as
-      "2024"; the only commit is dated 2025-11-14 — owner to confirm). Tagging it makes
-      `v2.0.0...v3.0.0` comparisons work; skipping it is also fine.
+- [x] Owner approved 3.0.0 (review of `79c4fa4`, then PR #2).
+- [x] Release date set in the CHANGELOG heading: `## [3.0.0] - 2026-10-25` (the date the release
+      commit was prepared; change it, and the metadata test still passes, if the tag is made on a
+      different day).
+- [x] Owner decision: the original commit `7256473` is **not** tagged `v2.0.0`. The repository has
+      no tags and no GitHub releases; `v2.0.0...v3.0.0` comparisons are therefore not available.
+- [ ] The CHANGELOG dates 2.0.0 as "2024"; the only original commit is dated 2025-11-14. Left
+      unresolved by owner decision because it cannot be verified independently.
 
 ### Why 3.0.0
 
@@ -96,7 +98,7 @@ broken, which defeats the purpose. Everything else (Bash/Zsh, generator, tests, 
 - [x] Every `tests/test_*.py` module is run by CI — `tests/test_ci_coverage.py` fails otherwise (it
       caught that `test_release_metadata.py` and `test_encoding.py` had not been wired in).
 - [x] CI covers Linux (grammar, PowerShell, Bash, Zsh) and Windows (PowerShell 7; 5.1 see section 3).
-      Main at merge commit `11341d1`: run 40150961485, all jobs green. RC: [run 40152676325](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40152676325) (four jobs green).
+      `main` at PR #1's merge commit `11341d1`: run 40150961485, all jobs green. `main` at PR #2's merge commit `7728eca`: [run 40164237059](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40164237059).
 - [ ] Live resource-name completion (pod names etc.) — **not tested**: no cluster was available.
       What is tested: kubectl receives the right implicit arguments, and flags and flag values
       complete.
@@ -126,26 +128,25 @@ broken, which defeats the purpose. Everything else (Bash/Zsh, generator, tests, 
       (tested / not tested), upgrade notes, Bash/Zsh section, test commands.
 - [x] `QUICKSTART.md` — minimal install for PowerShell and Bash/Zsh, upgrade pointer, the
       missing-`k-aliases.ps1` fix.
-- [x] `release-notes/v3.0.0.md` — standalone GitHub Release draft.
+- [x] `release-notes/v3.0.0.md` — standalone text for the GitHub Release (unpublished).
 - [x] No unsupported alias expectation remains: `gs` removed (README, tests, Anki export); the full
       suite passes against the real modules in Windows CI.
 - [x] Anki export runs: `Export-Anki.ps1` under PowerShell 7.4.6 writes `aliases-anki.csv` (28 lines,
       no `gs` card).
 
-## 7. Publishing (owner actions — nothing below has been done)
+## 7. Publishing (nothing below has been done; each step needs the owner's authorisation)
 
-1. Merge `release/rc-prep` into `main` after review.
-2. Optional release candidate:
+Done: PR #2 reviewed and merged into `main` (`7728eca`); release date set; release notes finalised
+(no draft banner); finalisation commit pushed and its CI verified.
+
+1. Authorise publication of the finalisation commit on `main` (its SHA is in the hand-over report).
+2. Tag that commit and push the tag:
    ```sh
-   git tag -a v3.0.0-rc.1 -m "v3.0.0 release candidate 1"
-   git push origin v3.0.0-rc.1        # then publish a *pre-release* from release-notes/v3.0.0.md
-   ```
-3. Final release: set the date in the CHANGELOG, then
-   ```sh
-   git tag -a v3.0.0 -m "v3.0.0: K-system aliases generated from one grammar; Bash/Zsh support"
+   git tag -a v3.0.0 <finalisation-commit-sha> -m "v3.0.0: K-system aliases generated from one grammar; Bash/Zsh support"
    git push origin v3.0.0
    ```
-   and create the GitHub Release from `release-notes/v3.0.0.md` (refresh the verification links).
+3. Create the GitHub Release for `v3.0.0` from `release-notes/v3.0.0.md` (the CHANGELOG link in it
+   resolves once the tag exists).
 4. Confirm CI is green on the tagged commit.
 
 ## Known limitations
