@@ -1,4 +1,4 @@
-# Export aliases to Anki-compatible CSV for spaced repetition
+﻿# Export aliases to Anki-compatible CSV for spaced repetition
 # Import this CSV into Anki to create flashcards for learning aliases
 
 param(

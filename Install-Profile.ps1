@@ -1,4 +1,4 @@
-# Installation script for PowerShell Profile
+﻿# Installation script for PowerShell Profile
 # Automates the setup process
 
 param(

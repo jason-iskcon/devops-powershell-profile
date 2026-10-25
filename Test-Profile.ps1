@@ -1,4 +1,4 @@
-# Test script for PowerShell Profile
+﻿# Test script for PowerShell Profile
 # Validates that all documented aliases exist and work correctly
 
 param(
