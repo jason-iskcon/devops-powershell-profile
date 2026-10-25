@@ -300,15 +300,15 @@ if ($FailedTests.Count -gt 0) {
     Write-Host "   . `$PROFILE" -ForegroundColor White
     Write-Host "   Or ensure Microsoft.Powershell_profile.ps1 is in your profile directory" -ForegroundColor White
     
-    exit 1
+    $exitCode = 1
 } else {
     Write-Host "`n✓ All tests passed!" -ForegroundColor Green
     Write-Host "  All $total documented aliases are available and ready to use." -ForegroundColor Gray
-    exit 0
+    $exitCode = 0
 }
 
 # ============================================
-# Interactive Quiz Mode
+# Interactive Quiz Mode (runs after the summary; the exit code still reflects the tests)
 # ============================================
 if ($Quiz) {
     Write-Host "`n=== Interactive Quiz Mode ===" -ForegroundColor Cyan
@@ -356,7 +356,8 @@ if ($Quiz) {
     } else {
         Write-Host "Keep studying! Review Tier 1 commands and try again." -ForegroundColor Yellow
     }
-    
-    exit 0
 }
+
+# Exit only here: an earlier exit would make the -Quiz block above unreachable.
+exit $exitCode
 
