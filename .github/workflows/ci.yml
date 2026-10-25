@@ -32,6 +32,8 @@ jobs:
           python -m unittest discover -s tests -p 'test_encoding.py' -v
           python -m unittest discover -s tests -p 'test_ci_coverage.py' -v
       - name: Test-Profile.ps1 tests (none may be skipped)
+        # `shell: bash` runs `bash -eo pipefail`; the implicit shell has no pipefail, so `| tee` would hide a failing test run.
+        shell: bash
         run: |
           python -m unittest discover -s tests -p 'test_test_profile.py' -v 2>&1 | tee test-profile.log
           if grep -E '\.\.\. skipped|\(skipped=' test-profile.log; then
@@ -67,6 +69,8 @@ jobs:
           shellcheck -s sh posix/install.sh
           shellcheck -s bash posix/k-aliases.sh posix/k-completion-data.sh posix/k-completion.bash posix/k-init.bash
       - name: Bash and zsh tests (none may be skipped)
+        # `shell: bash` runs `bash -eo pipefail`; the implicit shell has no pipefail, so `| tee` would hide a failing test run.
+        shell: bash
         run: |
           python -m unittest discover -s tests -p 'test_posix_*.py' -v 2>&1 | tee posix-tests.log
           if grep -E '\.\.\. skipped|\(skipped=' posix-tests.log; then
