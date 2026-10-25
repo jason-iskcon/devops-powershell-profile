@@ -1,6 +1,6 @@
 # PowerShell Profile v3.0.0
 # DevOps-focused profile with mnemonic aliases for Git, Terraform, and Kubectl
-# See README.md for documentation
+# See README.md and docs/ for documentation
 
 function cd.. { cd .. }
 

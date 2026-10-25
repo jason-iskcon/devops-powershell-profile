@@ -115,6 +115,6 @@ Write-Host "`nNext steps:" -ForegroundColor Cyan
 Write-Host "1. Restart your PowerShell session (or run: . `$PROFILE)" -ForegroundColor White
 Write-Host "2. Test the installation: .\Test-Profile.ps1" -ForegroundColor White
 Write-Host "3. Try the quiz: .\Test-Profile.ps1 -Quiz" -ForegroundColor White
-Write-Host "4. Read the README.md for learning resources" -ForegroundColor White
+Write-Host "4. Read docs/learning.md for learning resources" -ForegroundColor White
 Write-Host "`nEnjoy your new aliases! 🚀" -ForegroundColor Green
 

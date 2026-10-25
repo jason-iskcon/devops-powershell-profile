@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- The README is split into pages under `docs/` (installation, kubectl aliases, Git and
+  Terraform aliases, shell differences, learning, troubleshooting, testing) and a root
+  `CONTRIBUTING.md`. The README keeps the overview, a "what works where" table and links.
+
+### Fixed (documentation)
+- The typing-savings table had wrong character counts; the unsupported "100+ hours per year"
+  claim is gone.
+- Usage tracking is documented as it behaves: it logs `kgp` only, to
+  `%USERPROFILE%\.alias-usage.log`, so it works on Windows only.
+- The contributing guide no longer shows hand-editing the generated `k-aliases.ps1`; it
+  describes the grammar, `tests/k-additions.tsv`, and where Git aliases come from.
+- The example `Test-Profile.ps1` output shows the real total (839, including the 788 kubectl
+  expansion checks), and the CI description lists the four jobs.
+- The profile's other helpers (`tf`, `grep`, `touch`, `export`, `focus`, `relax`, `cd..`) and
+  its change of directory to `~/Workspace` are documented.
+
 ## [3.0.0] - 2026-10-25
 
 The kubectl "K system" is now generated from one grammar and also works in Bash and Zsh.

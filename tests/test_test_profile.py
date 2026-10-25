@@ -148,7 +148,7 @@ class ProfileNeedsItsGeneratedAliasFile(unittest.TestCase):
 
 
 class DocumentedGitAliasesAreExactlyTheTestedOnes(unittest.TestCase):
-    """The README, Test-Profile.ps1 and the stand-in module must list the same Git aliases.
+    """docs/git-terraform.md, Test-Profile.ps1 and the stand-in module must list the same Git aliases.
 
     `gs` was documented and tested but the real git-aliases module does not define it (found
     on the Windows runner), and defining it would shadow Ghostscript, so it was removed.
@@ -157,8 +157,8 @@ class DocumentedGitAliasesAreExactlyTheTestedOnes(unittest.TestCase):
     """
 
     def documented_aliases(self) -> set[str]:
-        readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        git = readme[readme.index('### Git - The "G" System'):readme.index('### Terraform - The "T" System')]
+        docs = (ROOT / "docs" / "git-terraform.md").read_text(encoding="utf-8")
+        git = docs[docs.index('## Git - The "G" System'):docs.index('## Terraform - The "T" System')]
         return set(re.findall(r"(?m)^(g[a-z]+)\s+- git ", git))
 
     def aliases_checked_by_test_profile(self) -> set[str]:
@@ -172,7 +172,8 @@ class DocumentedGitAliasesAreExactlyTheTestedOnes(unittest.TestCase):
         self.assertEqual(set(GIT_ALIASES), self.aliases_checked_by_test_profile())
 
     def test_gs_is_not_expected_anywhere(self):
-        for name in ("README.md", "Test-Profile.ps1", "Export-Anki.ps1"):
+        docs = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs").glob("*.md"))
+        for name in ("README.md", *docs, "Test-Profile.ps1", "Export-Anki.ps1"):
             with self.subTest(file=name):
                 text = (ROOT / name).read_text(encoding="utf-8")
                 self.assertIsNone(re.search(r'(?m)^gs\s+- |Name="gs"|Back="gs"', text))

@@ -27,7 +27,7 @@ It adds one marked block to `~/.bashrc` or `~/.zshrc` and backs the file up firs
 time with `sh posix/install.sh uninstall`. Tab completion (`kzgp <TAB>`) needs `kubectl` on your
 `PATH`; in bash it also needs bash 4.1+ and the bash-completion package. macOS has not been tested.
 
-Upgrading from 2.0.0? See "Upgrading from 2.0.0" in the [README](README.md#upgrading-from-200):
+Upgrading from 2.0.0? See [Upgrading from 2.0.0](docs/install.md#upgrading-from-200):
 `dy` and `f` were removed and `kgn`/`kdn`/`kxn` now mean namespaces.
 
 ## 2. Learn the Essentials (3 minutes)
@@ -71,9 +71,9 @@ kl pod/my-pod           # Logs from pod
 
 ## 4. Learn More
 
-- **Full documentation:** See [README.md](README.md)
+- **Full documentation:** See the [README](README.md) and [docs/](docs/install.md)
 - **All aliases:** Run `Get-Command g*`, `Get-Command k*`, `Get-Command t*`
-- **Practice:** Use the [Learning Path](README.md#learning-path-with-checkpoints)
+- **Practice:** Use the [Learning Path](docs/learning.md#learning-path-with-checkpoints)
 
 ## Common Issues
 
@@ -94,7 +94,7 @@ Install-Module git-aliases -Scope CurrentUser
 Install-Module PSKubectlCompletion -Scope CurrentUser
 ```
 
-**Need help?** Check the [Troubleshooting](README.md#troubleshooting) section.
+**Need help?** Check [Troubleshooting](docs/troubleshooting.md).
 
 ---
 
