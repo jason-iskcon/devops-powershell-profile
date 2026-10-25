@@ -16,13 +16,27 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      # The PowerShell-dependent tests skip themselves when `pwsh` is missing. On this runner that must
+      # be an error, not a quietly smaller test run.
+      - name: Check that PowerShell 7 is present
+        run: |
+          command -v pwsh
+          pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
       - name: k-aliases.ps1 is up to date
         run: python tools/generate_aliases.py --check
-      # pwsh is preinstalled on GitHub's Ubuntu runners; tests that need it skip if it is missing.
       - name: Grammar and generator tests
         run: python -m unittest discover -s tests -p 'test_generate_aliases.py' -v
-      - name: Test-Profile.ps1 (quiz regression)
-        run: python -m unittest discover -s tests -p 'test_test_profile.py' -v
+      - name: Release metadata, script encoding and CI coverage tests
+        run: |
+          python -m unittest discover -s tests -p 'test_release_metadata.py' -v
+          python -m unittest discover -s tests -p 'test_encoding.py' -v
+          python -m unittest discover -s tests -p 'test_ci_coverage.py' -v
+      - name: Test-Profile.ps1 tests (none may be skipped)
+        run: |
+          python -m unittest discover -s tests -p 'test_test_profile.py' -v 2>&1 | tee test-profile.log
+          if grep -E '\.\.\. skipped|\(skipped=' test-profile.log; then
+            echo "::error::PowerShell tests were skipped"; exit 1
+          fi
 
   posix:
     name: Bash and zsh (Linux)
@@ -52,8 +66,12 @@ jobs:
         run: |
           shellcheck -s sh posix/install.sh
           shellcheck -s bash posix/k-aliases.sh posix/k-completion-data.sh posix/k-completion.bash posix/k-init.bash
-      - name: Bash and zsh tests
-        run: python -m unittest discover -s tests -p 'test_posix_*.py' -v
+      - name: Bash and zsh tests (none may be skipped)
+        run: |
+          python -m unittest discover -s tests -p 'test_posix_*.py' -v 2>&1 | tee posix-tests.log
+          if grep -E '\.\.\. skipped|\(skipped=' posix-tests.log; then
+            echo "::error::Bash/zsh tests were skipped"; exit 1
+          fi
 
   windows-install-smoke:
     name: Installer and generated functions (Windows)
