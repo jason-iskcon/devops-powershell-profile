@@ -49,7 +49,9 @@ two helper functions were removed. See "Upgrading from 2.0.0" in the README.
 - `Test-Profile.ps1 -KubectlOnly` checks just the kubectl functions.
 - A clear start-up warning when `k-aliases.ps1` is missing next to the profile.
 - `tests/test_release_metadata.py` keeps the version identical in the README, the profile
-  header, this changelog and the release notes.
+  header, this changelog and the release notes, and the release notes free of relative links.
+- `tests/test_ci_coverage.py` fails if a test module is not run by the CI workflow; CI also
+  checks for `pwsh` and fails if any PowerShell or Bash/Zsh test is skipped.
 
 ### Changed
 - The 788 kubectl functions are generated rather than hand-written; the generated functions are

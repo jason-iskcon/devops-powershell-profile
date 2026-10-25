@@ -83,15 +83,18 @@ broken, which defeats the purpose. Everything else (Bash/Zsh, generator, tests, 
 
 ## 4. Testing
 
-- [x] Full suite with every external tool present: **114 tests, OK, none skipped**
+- [x] Full suite with every external tool present: **120 tests, OK, none skipped**
       (`python3 -m unittest discover -s tests`).
 - [x] Generator consistency: `python3 tools/generate_aliases.py --check` — all generated files
       current (also a CI step).
 - [x] ShellCheck 0.11.0 clean on `posix/install.sh` (sh) and the bash files (also a CI step).
 - [x] Tests that depend on something external were identified. With `pwsh` and `kubectl` hidden,
-      **15 of 114 skip**: 9 need PowerShell 7 (`PWSH`), 6 need the real kubectl
+      **15 of 120 skip**: 9 need PowerShell 7 (`PWSH`), 6 need the real kubectl
       (`KUBECTL`; the bash ones also need bash-completion). The Bash/Zsh tests need a POSIX system
-      and do not run on Windows. CI asserts the tools are present so nothing skips silently there.
+      and do not run on Windows. On Linux CI nothing may skip: the job checks `command -v pwsh` and the
+      PowerShell and Bash/zsh test steps fail if any test is reported skipped.
+- [x] Every `tests/test_*.py` module is run by CI — `tests/test_ci_coverage.py` fails otherwise (it
+      caught that `test_release_metadata.py` and `test_encoding.py` had not been wired in).
 - [x] CI covers Linux (grammar, PowerShell, Bash, Zsh) and Windows (PowerShell 7; 5.1 see section 3).
       Main at merge commit `11341d1`: run 40150961485, all jobs green. RC: [run 40152676325](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40152676325) (four jobs green).
 - [ ] Live resource-name completion (pod names etc.) — **not tested**: no cluster was available.
