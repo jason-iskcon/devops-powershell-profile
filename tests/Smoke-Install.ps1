@@ -59,10 +59,11 @@ try {
     Assert-That ($output -match [regex]::Escape('kxpaa=& kubectl delete pods --all $args')) "kxpaa expands to delete pods --all"
     Assert-That ($output -match [regex]::Escape('kzgpw=& kubectl --namespace=kube-system get pods --watch $args')) "kzgpw targets kube-system"
 
-    Write-Host "`n--- Test-Profile.ps1 against the installed copy ---" -ForegroundColor Cyan
+    Write-Host "`n--- Test-Profile.ps1 against the installed copy (kubectl functions only) ---" -ForegroundColor Cyan
     # Runs in this scope so it picks up the overridden $PROFILE.
-    & (Join-Path $repo "Test-Profile.ps1") | Out-Host
-    Assert-That ($LASTEXITCODE -eq 0) "Test-Profile.ps1 passes (all 788+ kubectl expansions and the documented aliases)"
+    # -KubectlOnly: the Git aliases come from a third-party module, not from what is installed here.
+    & (Join-Path $repo "Test-Profile.ps1") -KubectlOnly | Out-Host
+    Assert-That ($LASTEXITCODE -eq 0) "Test-Profile.ps1 -KubectlOnly passes (every kubectl function matches the manifests)"
 }
 finally {
     Remove-Item -Recurse -Force $temp -ErrorAction SilentlyContinue

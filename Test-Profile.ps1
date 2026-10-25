@@ -4,7 +4,9 @@
 param(
     [switch]$SkipExecutionTests,
     [switch]$Verbose,
-    [switch]$Quiz
+    [switch]$Quiz,
+    # Check only the kubectl functions: skips the Git and Terraform aliases, which come from other modules.
+    [switch]$KubectlOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -93,63 +95,65 @@ try {
     }
 }
 
-# ============================================
-# Git Aliases Tests
-# ============================================
-Write-Host "--- Testing Git Aliases ---" -ForegroundColor Cyan
+if (-not $KubectlOnly) {
+    # ============================================
+    # Git Aliases Tests
+    # ============================================
+    Write-Host "--- Testing Git Aliases ---" -ForegroundColor Cyan
 
-$gitAliases = @(
-    @{Name="ga"; Desc="git add"},
-    @{Name="gaa"; Desc="git add --all"},
-    @{Name="gcmsg"; Desc="git commit -m"},
-    @{Name="gp"; Desc="git push"},
-    @{Name="gl"; Desc="git pull"},
-    @{Name="gco"; Desc="git checkout"},
-    @{Name="gcb"; Desc="git checkout -b"},
-    @{Name="gbr"; Desc="git branch"},
-    @{Name="gbd"; Desc="git branch -d"},
-    @{Name="gs"; Desc="git status"},
-    @{Name="gd"; Desc="git diff"},
-    @{Name="gds"; Desc="git diff --staged"},
-    @{Name="gst"; Desc="git stash"},
-    @{Name="gsta"; Desc="git stash apply"},
-    @{Name="gstd"; Desc="git stash drop"},
-    @{Name="gcl"; Desc="git clone"},
-    @{Name="glog"; Desc="git log"},
-    @{Name="gsh"; Desc="git show"}
-)
+    $gitAliases = @(
+        @{Name="ga"; Desc="git add"},
+        @{Name="gaa"; Desc="git add --all"},
+        @{Name="gcmsg"; Desc="git commit -m"},
+        @{Name="gp"; Desc="git push"},
+        @{Name="gl"; Desc="git pull"},
+        @{Name="gco"; Desc="git checkout"},
+        @{Name="gcb"; Desc="git checkout -b"},
+        @{Name="gbr"; Desc="git branch"},
+        @{Name="gbd"; Desc="git branch -d"},
+        @{Name="gs"; Desc="git status"},
+        @{Name="gd"; Desc="git diff"},
+        @{Name="gds"; Desc="git diff --staged"},
+        @{Name="gst"; Desc="git stash"},
+        @{Name="gsta"; Desc="git stash apply"},
+        @{Name="gstd"; Desc="git stash drop"},
+        @{Name="gcl"; Desc="git clone"},
+        @{Name="glog"; Desc="git log"},
+        @{Name="gsh"; Desc="git show"}
+    )
 
-foreach ($alias in $gitAliases) {
-    $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Git" -SkipExecution
-    if ($test.Exists) {
-        Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
-    } else {
-        Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+    foreach ($alias in $gitAliases) {
+        $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Git" -SkipExecution
+        if ($test.Exists) {
+            Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+        }
     }
-}
 
-# ============================================
-# Terraform Aliases Tests
-# ============================================
-Write-Host "`n--- Testing Terraform Aliases ---" -ForegroundColor Cyan
+    # ============================================
+    # Terraform Aliases Tests
+    # ============================================
+    Write-Host "`n--- Testing Terraform Aliases ---" -ForegroundColor Cyan
 
-$terraformAliases = @(
-    @{Name="ti"; Desc="terraform init"},
-    @{Name="tp"; Desc="terraform plan"},
-    @{Name="ta"; Desc="terraform apply --auto-approve"},
-    @{Name="td"; Desc="terraform destroy"},
-    @{Name="tv"; Desc="terraform validate"},
-    @{Name="tfmt"; Desc="terraform fmt"},
-    @{Name="tpt"; Desc="terraform plan -target="},
-    @{Name="tat"; Desc="terraform apply -target= --auto-approve"}
-)
+    $terraformAliases = @(
+        @{Name="ti"; Desc="terraform init"},
+        @{Name="tp"; Desc="terraform plan"},
+        @{Name="ta"; Desc="terraform apply --auto-approve"},
+        @{Name="td"; Desc="terraform destroy"},
+        @{Name="tv"; Desc="terraform validate"},
+        @{Name="tfmt"; Desc="terraform fmt"},
+        @{Name="tpt"; Desc="terraform plan -target="},
+        @{Name="tat"; Desc="terraform apply -target= --auto-approve"}
+    )
 
-foreach ($alias in $terraformAliases) {
-    $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Terraform" -SkipExecution
-    if ($test.Exists) {
-        Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
-    } else {
-        Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+    foreach ($alias in $terraformAliases) {
+        $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Terraform" -SkipExecution
+        if ($test.Exists) {
+            Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+        }
     }
 }
 
@@ -285,8 +289,9 @@ foreach ($name in $extra) {
 Write-Host "`n=== Test Summary ===" -ForegroundColor Cyan
 
 $total = $TestResults.Count
-$passed = ($TestResults | Where-Object { $_.Exists }).Count
-$failed = ($TestResults | Where-Object { -not $_.Exists }).Count
+# @() because .Count of a single hashtable is its number of keys, not 1.
+$passed = @($TestResults | Where-Object { $_.Exists }).Count
+$failed = @($TestResults | Where-Object { -not $_.Exists }).Count
 
 Write-Host "Total Tests: $total" -ForegroundColor White
 Write-Host "Passed: $passed" -ForegroundColor Green

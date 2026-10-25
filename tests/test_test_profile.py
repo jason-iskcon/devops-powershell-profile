@@ -20,7 +20,17 @@ PWSH = os.environ.get("PWSH") or shutil.which("pwsh")
 # Answers to the eight questions in Test-Profile.ps1, in order.
 QUIZ_ANSWERS = ["gl", "kgp", "ta", "kxp", "gcmsg", "kgpaay", "kzgp", "td"]
 
-# The profile imports these modules; empty stand-ins let it load without the PowerShell Gallery.
+GIT_ALIASES = ["ga", "gaa", "gcmsg", "gp", "gl", "gco", "gcb", "gbr", "gbd", "gs", "gd", "gds",
+               "gst", "gsta", "gstd", "gcl", "glog", "gsh"]
+
+
+def git_aliases_module(missing: tuple[str, ...] = ()) -> str:
+    names = ", ".join(f"'{n}'" for n in GIT_ALIASES if n not in missing)
+    return f"foreach ($n in {names}) {{ Set-Item -Path \"function:global:$n\" -Value {{ git $args }} }}"
+
+
+# The profile imports these modules; stand-ins let it load without the PowerShell Gallery. The
+# git aliases are absent by default, so the Git checks fail and the exit code is non-zero.
 STUB_MODULES = {
     "posh-git": "",
     "git-aliases": "",
@@ -30,12 +40,13 @@ STUB_MODULES = {
 
 @unittest.skipUnless(PWSH, "PowerShell 7 (pwsh) not available")
 class QuizIsReachable(unittest.TestCase):
-    def run_test_profile(self, *args: str, stdin: str = "") -> subprocess.CompletedProcess:
+    def run_test_profile(self, *args: str, stdin: str = "",
+                         stub_modules: dict | None = None) -> subprocess.CompletedProcess:
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp) / "home"
             (home / "Workspace").mkdir(parents=True)  # the profile ends with Set-Location ~/Workspace
             modules = Path(tmp) / "modules"
-            for name, body in STUB_MODULES.items():
+            for name, body in (stub_modules or STUB_MODULES).items():
                 (modules / name).mkdir(parents=True)
                 (modules / name / f"{name}.psm1").write_text(body, encoding="utf-8")
             env = dict(
@@ -74,6 +85,23 @@ class QuizIsReachable(unittest.TestCase):
         # so the git checks fail: the exit code must report that even after a perfect quiz.
         result = self.run_test_profile("-Quiz", stdin="\n".join(QUIZ_ANSWERS) + "\n")
         self.assertNotEqual(result.returncode, 0)
+
+    def test_one_failing_check_is_counted_as_one(self):
+        # .Count of a single hashtable is its number of keys (5), which once made a lone
+        # failure print "Failed: 5" (seen on the Windows CI runner).
+        modules = {**STUB_MODULES, "git-aliases": git_aliases_module(missing=("gs",))}
+        result = self.run_test_profile(stub_modules=modules)
+        self.assertIn("Failed: 1", result.stdout, result.stderr)
+        self.assertIn("gs (Git): Command not found", result.stdout)
+        self.assertNotEqual(result.returncode, 0)
+
+    def test_kubectl_only_ignores_the_git_and_terraform_aliases(self):
+        # Git aliases come from a third-party module; the installer smoke test must not depend on it.
+        result = self.run_test_profile("-KubectlOnly")  # the stubs define no git aliases
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Checked 788 kubectl aliases", result.stdout)
+        self.assertNotIn("Testing Git Aliases", result.stdout)
+        self.assertNotIn("Testing Terraform Aliases", result.stdout)
 
 
 if __name__ == "__main__":
