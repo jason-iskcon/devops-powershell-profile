@@ -34,6 +34,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   injection checks, completion wrapper tests, interactive Tab tests against the real kubectl,
   and installer tests.
 
+### Fixed (Bash and Zsh installer)
+- `uninstall --shell bash` deleted the shared files while `~/.zshrc` still sourced them (and
+  vice versa, and also when the other shell was never installed). The shared files are now kept
+  until no remaining rc file uses them.
+- An rc file with the end marker before the begin marker passed the marker-count check, and
+  the installer then deleted everything after the begin marker. Marker order is checked, for
+  every selected file, before any change.
+- `--shell auto`, listed in the usage text, was rejected; it now picks the shell from `$SHELL`
+  (the default for install; uninstall defaults to both).
+
 ### Changed
 - The 788 kubectl functions are now generated from `k-grammar.toml` by
   `tools/generate_aliases.py` into `k-aliases.ps1`, which the profile dot-sources. The

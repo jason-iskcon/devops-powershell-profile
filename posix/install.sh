@@ -5,6 +5,9 @@
 #                    [--bashrc FILE] [--zshrc FILE]
 #   posix/install.sh uninstall [same options]
 #
+# --shell auto uses the shell named by $SHELL (bash or zsh); it is the default for install.
+# uninstall defaults to both shells.
+#
 # What it does, and only this:
 #   * copies the shell files into a directory of their own (default
 #     ${XDG_DATA_HOME:-~/.local/share}/devops-k-aliases);
@@ -71,18 +74,19 @@ case $prefix in
     *) prefix_ref=$prefix ;;
 esac
 
+detect_shell() { # sets $targets from $SHELL
+    case ${SHELL:-} in
+        */bash) targets=bash ;;
+        */zsh) targets=zsh ;;
+        *) die "cannot tell which shell you use (SHELL=${SHELL:-unset}); pass --shell bash, zsh or both" ;;
+    esac
+}
+
 if [ -z "$shell_choice" ]; then
-    if [ "$action" = uninstall ]; then
-        shell_choice=both
-    else
-        case ${SHELL:-} in
-            */bash) shell_choice=bash ;;
-            */zsh) shell_choice=zsh ;;
-            *) die "cannot tell which shell you use (SHELL=${SHELL:-unset}); pass --shell bash, zsh or both" ;;
-        esac
-    fi
+    if [ "$action" = uninstall ]; then shell_choice=both; else shell_choice=auto; fi
 fi
 case $shell_choice in
+    auto) detect_shell ;;
     bash) targets="bash" ;;
     zsh) targets="zsh" ;;
     both) targets="bash zsh" ;;

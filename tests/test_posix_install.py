@@ -1,6 +1,7 @@
 """posix/install.sh: idempotent, reversible, and careful with files that are not ours."""
 
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -323,6 +324,49 @@ class Options(InstallerCase):
         self.ok(env={"SHELL": "/usr/bin/zsh"})
         self.assertTrue(self.zshrc.exists())
         self.assertFalse(self.bashrc.exists())
+
+    def test_shell_auto_picks_the_shell_named_by_SHELL(self):
+        for shell_env, rc, other in (("/bin/bash", self.bashrc, self.zshrc),
+                                     ("/usr/bin/zsh", self.zshrc, self.bashrc)):
+            with self.subTest(SHELL=shell_env):
+                self.ok("--shell", "auto", env={"SHELL": shell_env})
+                self.assertIn(BEGIN, rc.read_text())
+                self.assertFalse(other.exists(), "only the detected shell's rc file is touched")
+                self.ok("uninstall", "--shell", "auto", env={"SHELL": shell_env})
+                self.assertNotIn(BEGIN, rc.read_text())
+                rc.unlink()
+
+    def test_shell_auto_with_an_unknown_shell_asks_for_an_explicit_choice(self):
+        result = self.run_installer("--shell", "auto", env={"SHELL": "/usr/bin/fish"})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("pass --shell", result.stderr)
+        self.assertEqual(self.snapshot(), {})
+
+    def test_uninstall_auto_only_touches_the_detected_shell(self):
+        self.ok("--shell", "both")
+        self.ok("uninstall", "--shell", "auto", env={"SHELL": "/bin/zsh"})
+        self.assertIn(BEGIN, self.bashrc.read_text())
+        self.assertNotIn(BEGIN, self.zshrc.read_text())
+        self.assertTrue((self.prefix / "k-init.bash").exists(), "bash still uses the shared files")
+
+    def test_the_documented_defaults_are_what_happens(self):
+        # install: auto; uninstall: both
+        self.ok(env={"SHELL": "/bin/zsh"})
+        self.assertTrue(self.zshrc.exists() and not self.bashrc.exists())
+        self.ok("--shell", "bash")
+        self.ok("uninstall", env={"SHELL": "/bin/zsh"})
+        self.assertNotIn(BEGIN, self.bashrc.read_text())
+        self.assertNotIn(BEGIN, self.zshrc.read_text())
+
+    def test_every_value_the_help_text_advertises_is_accepted(self):
+        usage = self.ok("--help").stdout
+        advertised = re.search(r"--shell ((?:\w+\|)+\w+)", usage)
+        self.assertIsNotNone(advertised, usage)
+        for value in advertised.group(1).split("|"):
+            with self.subTest(value=value):
+                result = self.run_installer("--shell", value, "--dry-run", env={"SHELL": "/bin/bash"})
+                self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("auto", usage)
 
     def test_zdotdir_and_explicit_rc_paths_are_honoured(self):
         zdot = self.home / "zdot"

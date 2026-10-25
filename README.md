@@ -108,17 +108,20 @@ the same, including the destructive ones (`kxpaa` is still `kubectl delete pods 
 
 ```sh
 python3 tools/generate_aliases.py     # only if posix/ is missing or you changed k-grammar.toml
-sh posix/install.sh                   # bash or zsh, chosen from $SHELL
+sh posix/install.sh                   # same as --shell auto: bash or zsh, from $SHELL
 sh posix/install.sh --shell both      # or: bash, zsh
 sh posix/install.sh --dry-run         # show what would change
-sh posix/install.sh uninstall         # remove the block and the copied files
+sh posix/install.sh uninstall         # both shells (default); or --shell bash|zsh|auto
 ```
 
 The installer copies the shell files to `${XDG_DATA_HOME:-~/.local/share}/devops-k-aliases`
 and adds one marked block to `~/.bashrc` and/or `~/.zshrc` that sources them. It changes
 nothing else, backs up an rc file before editing it (backups are never overwritten), writes
 through symlinks, does nothing when run again, and `uninstall` puts the rc files back exactly
-as they were (a file that did not end in a newline gains one). Use `--bashrc ~/.bash_profile`
+as they were (a file that did not end in a newline gains one). bash and zsh share one copy of
+the files, so `uninstall --shell bash` removes only bash's block and keeps the files while zsh's
+rc file still uses them; they go when the last shell is uninstalled. An rc file whose markers
+are damaged or out of order is refused before anything is changed. Use `--bashrc ~/.bash_profile`
 if your terminal starts login shells, as macOS Terminal does. `ZDOTDIR` is honoured.
 
 **Tab completion** understands what each alias stands for: `kzgp <TAB>` completes like
