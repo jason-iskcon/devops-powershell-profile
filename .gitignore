@@ -24,3 +24,6 @@ desktop.ini
 TestResults/
 *.test.xml
 
+
+# Python
+__pycache__/

@@ -4,7 +4,9 @@
 param(
     [switch]$SkipExecutionTests,
     [switch]$Verbose,
-    [switch]$Quiz
+    [switch]$Quiz,
+    # Check only the kubectl functions: skips the Git and Terraform aliases, which come from other modules.
+    [switch]$KubectlOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,14 +42,14 @@ function Test-Alias {
             }
         } else {
             $result.Error = "Command not found"
-            $FailedTests += $result
+            $script:FailedTests += $result
         }
     } catch {
         $result.Error = $_.Exception.Message
-        $FailedTests += $result
+        $script:FailedTests += $result
     }
     
-    $TestResults += $result
+    $script:TestResults += $result
     
     if ($Verbose -and $result.Exists) {
         Write-Host "    [Type: $($result.CommandType), Source: $($result.Source)]" -ForegroundColor DarkGray
@@ -93,63 +95,64 @@ try {
     }
 }
 
-# ============================================
-# Git Aliases Tests
-# ============================================
-Write-Host "--- Testing Git Aliases ---" -ForegroundColor Cyan
+if (-not $KubectlOnly) {
+    # ============================================
+    # Git Aliases Tests
+    # ============================================
+    Write-Host "--- Testing Git Aliases ---" -ForegroundColor Cyan
 
-$gitAliases = @(
-    @{Name="ga"; Desc="git add"},
-    @{Name="gaa"; Desc="git add --all"},
-    @{Name="gcmsg"; Desc="git commit -m"},
-    @{Name="gp"; Desc="git push"},
-    @{Name="gl"; Desc="git pull"},
-    @{Name="gco"; Desc="git checkout"},
-    @{Name="gcb"; Desc="git checkout -b"},
-    @{Name="gbr"; Desc="git branch"},
-    @{Name="gbd"; Desc="git branch -d"},
-    @{Name="gs"; Desc="git status"},
-    @{Name="gd"; Desc="git diff"},
-    @{Name="gds"; Desc="git diff --staged"},
-    @{Name="gst"; Desc="git stash"},
-    @{Name="gsta"; Desc="git stash apply"},
-    @{Name="gstd"; Desc="git stash drop"},
-    @{Name="gcl"; Desc="git clone"},
-    @{Name="glog"; Desc="git log"},
-    @{Name="gsh"; Desc="git show"}
-)
+    $gitAliases = @(
+        @{Name="ga"; Desc="git add"},
+        @{Name="gaa"; Desc="git add --all"},
+        @{Name="gcmsg"; Desc="git commit -m"},
+        @{Name="gp"; Desc="git push"},
+        @{Name="gl"; Desc="git pull"},
+        @{Name="gco"; Desc="git checkout"},
+        @{Name="gcb"; Desc="git checkout -b"},
+        @{Name="gbr"; Desc="git branch"},
+        @{Name="gbd"; Desc="git branch -d"},
+        @{Name="gd"; Desc="git diff"},
+        @{Name="gds"; Desc="git diff --staged"},
+        @{Name="gst"; Desc="git stash"},
+        @{Name="gsta"; Desc="git stash apply"},
+        @{Name="gstd"; Desc="git stash drop"},
+        @{Name="gcl"; Desc="git clone"},
+        @{Name="glog"; Desc="git log"},
+        @{Name="gsh"; Desc="git show"}
+    )
 
-foreach ($alias in $gitAliases) {
-    $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Git" -SkipExecution
-    if ($test.Exists) {
-        Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
-    } else {
-        Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+    foreach ($alias in $gitAliases) {
+        $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Git" -SkipExecution
+        if ($test.Exists) {
+            Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+        }
     }
-}
 
-# ============================================
-# Terraform Aliases Tests
-# ============================================
-Write-Host "`n--- Testing Terraform Aliases ---" -ForegroundColor Cyan
+    # ============================================
+    # Terraform Aliases Tests
+    # ============================================
+    Write-Host "`n--- Testing Terraform Aliases ---" -ForegroundColor Cyan
 
-$terraformAliases = @(
-    @{Name="ti"; Desc="terraform init"},
-    @{Name="tp"; Desc="terraform plan"},
-    @{Name="ta"; Desc="terraform apply --auto-approve"},
-    @{Name="td"; Desc="terraform destroy"},
-    @{Name="tv"; Desc="terraform validate"},
-    @{Name="tfmt"; Desc="terraform fmt"},
-    @{Name="tpt"; Desc="terraform plan -target="},
-    @{Name="tat"; Desc="terraform apply -target= --auto-approve"}
-)
+    $terraformAliases = @(
+        @{Name="ti"; Desc="terraform init"},
+        @{Name="tp"; Desc="terraform plan"},
+        @{Name="ta"; Desc="terraform apply --auto-approve"},
+        @{Name="td"; Desc="terraform destroy"},
+        @{Name="tv"; Desc="terraform validate"},
+        @{Name="tfmt"; Desc="terraform fmt"},
+        @{Name="tpt"; Desc="terraform plan -target="},
+        @{Name="tat"; Desc="terraform apply -target= --auto-approve"}
+    )
 
-foreach ($alias in $terraformAliases) {
-    $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Terraform" -SkipExecution
-    if ($test.Exists) {
-        Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
-    } else {
-        Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+    foreach ($alias in $terraformAliases) {
+        $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Terraform" -SkipExecution
+        if ($test.Exists) {
+            Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
+        } else {
+            Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+        }
     }
 }
 
@@ -231,22 +234,52 @@ foreach ($alias in $kubectlOutputs) {
 }
 
 # ============================================
-# Helper Functions Tests
+# Kubectl Expansion Tests (all aliases)
 # ============================================
-Write-Host "`n--- Testing Helper Functions ---" -ForegroundColor Cyan
+# tests/k-aliases.tsv and tests/k-additions.tsv are the reference lists: <name><TAB><kubectl arguments>.
+# Each k* function body must be exactly "& kubectl <arguments> $args".
+Write-Host "`n--- Testing Kubectl Expansions (tests/k-aliases.tsv, tests/k-additions.tsv) ---" -ForegroundColor Cyan
 
-$helperFunctions = @(
-    @{Name="dy"; Desc="dry-run yaml"},
-    @{Name="f"; Desc="force kill"}
-)
+# k-aliases.tsv is frozen (the original aliases); k-additions.tsv lists aliases added since.
+$manifest = foreach ($file in "k-aliases.tsv", "k-additions.tsv") {
+    Get-Content (Join-Path $PSScriptRoot "tests/$file") | Where-Object { $_ -ne "" -and -not $_.StartsWith("#") }
+}
 
-foreach ($alias in $helperFunctions) {
-    $test = Test-Alias -AliasName $alias.Name -ExpectedCommand $alias.Desc -Category "Helpers" -SkipExecution
-    if ($test.Exists) {
-        Write-Host "  ✓ $($alias.Name) - $($alias.Desc)" -ForegroundColor Green
+foreach ($line in $manifest) {
+    $name, $kubectlArgs = $line -split "`t", 2
+    $expected = (("& kubectl " + $kubectlArgs).TrimEnd() + ' $args')
+    $result = @{ Name = $name; Category = "Kubectl-Expansion"; Exists = $false; Error = $null }
+    $cmd = Get-Command $name -CommandType Function -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        $result.Error = "Function not found"
     } else {
-        Write-Host "  ✗ $($alias.Name) - $($alias.Desc) - NOT FOUND" -ForegroundColor Red
+        $actual = $cmd.ScriptBlock.ToString().Trim()
+        if ($actual -eq $expected) {
+            $result.Exists = $true
+        } else {
+            $result.Error = "Expected '$expected' but got '$actual'"
+        }
     }
+    $script:TestResults += $result
+    if (-not $result.Exists) { $script:FailedTests += $result }
+}
+Write-Host "  Checked $($manifest.Count) kubectl aliases" -ForegroundColor Gray
+
+# A function defined twice silently overrides the first (the old kgn bug), so check the source.
+$aliasesPath = Join-Path (Split-Path $profilePath -Parent) "k-aliases.ps1"
+$definedNames = Select-String -Path $aliasesPath -Pattern '^function (k[a-z]*)\(' |
+    ForEach-Object { $_.Matches[0].Groups[1].Value }
+$duplicates = $definedNames | Group-Object | Where-Object { $_.Count -gt 1 }
+foreach ($dup in $duplicates) {
+    $dupResult = @{ Name = $dup.Name; Category = "Kubectl-Duplicate"; Exists = $false; Error = "Defined $($dup.Count) times" }
+    $script:TestResults += $dupResult
+    $script:FailedTests += $dupResult
+}
+$extra = $definedNames | Sort-Object -Unique | Where-Object { $_ -notin ($manifest | ForEach-Object { ($_ -split "`t")[0] }) }
+foreach ($name in $extra) {
+    $extraResult = @{ Name = $name; Category = "Kubectl-Unlisted"; Exists = $false; Error = "Defined in k-aliases.ps1 but missing from tests/k-aliases.tsv and tests/k-additions.tsv" }
+    $script:TestResults += $extraResult
+    $script:FailedTests += $extraResult
 }
 
 # ============================================
@@ -255,8 +288,9 @@ foreach ($alias in $helperFunctions) {
 Write-Host "`n=== Test Summary ===" -ForegroundColor Cyan
 
 $total = $TestResults.Count
-$passed = ($TestResults | Where-Object { $_.Exists }).Count
-$failed = ($TestResults | Where-Object { -not $_.Exists }).Count
+# @() because .Count of a single hashtable is its number of keys, not 1.
+$passed = @($TestResults | Where-Object { $_.Exists }).Count
+$failed = @($TestResults | Where-Object { -not $_.Exists }).Count
 
 Write-Host "Total Tests: $total" -ForegroundColor White
 Write-Host "Passed: $passed" -ForegroundColor Green
@@ -272,15 +306,15 @@ if ($FailedTests.Count -gt 0) {
     Write-Host "   . `$PROFILE" -ForegroundColor White
     Write-Host "   Or ensure Microsoft.Powershell_profile.ps1 is in your profile directory" -ForegroundColor White
     
-    exit 1
+    $exitCode = 1
 } else {
     Write-Host "`n✓ All tests passed!" -ForegroundColor Green
     Write-Host "  All $total documented aliases are available and ready to use." -ForegroundColor Gray
-    exit 0
+    $exitCode = 0
 }
 
 # ============================================
-# Interactive Quiz Mode
+# Interactive Quiz Mode (runs after the summary; the exit code still reflects the tests)
 # ============================================
 if ($Quiz) {
     Write-Host "`n=== Interactive Quiz Mode ===" -ForegroundColor Cyan
@@ -328,7 +362,8 @@ if ($Quiz) {
     } else {
         Write-Host "Keep studying! Review Tier 1 commands and try again." -ForegroundColor Yellow
     }
-    
-    exit 0
 }
+
+# Exit only here: an earlier exit would make the -Quiz block above unreachable.
+exit $exitCode
 

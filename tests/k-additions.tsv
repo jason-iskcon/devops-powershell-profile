@@ -1,0 +1,2 @@
+# New aliases added after the original 788 (see tests/k-aliases.tsv, which is frozen).
+# One per line: name<TAB>kubectl args. Each must come from a grammar row/alias with added = "x.y.z".

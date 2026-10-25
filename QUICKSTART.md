@@ -10,6 +10,9 @@ Get up and running in 5 minutes!
 
 That's it! The script handles everything.
 
+On Linux or macOS with bash or zsh, the kubectl aliases are available too:
+`sh posix/install.sh` (see the README, "Bash and Zsh").
+
 ## 2. Learn the Essentials (3 minutes)
 
 ### Git - The Daily Workflow

@@ -35,12 +35,12 @@ Use this checklist before tagging a release.
 ## Testing ✅
 
 - [x] Test suite covers all documented aliases (54+)
-- [x] Git aliases tested (18)
+- [x] Git aliases tested (17)
 - [x] Terraform aliases tested (8)
 - [x] Kubectl base commands tested (8)
 - [x] Kubectl resources tested (11)
 - [x] Kubectl outputs tested (7)
-- [x] Helper functions tested (2)
+- [x] All kubectl expansions tested against tests/k-aliases.tsv (788)
 
 ## Features ✅
 

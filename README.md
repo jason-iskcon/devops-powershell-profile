@@ -24,6 +24,7 @@ See [How to use](#how-to-use) for detailed installation instructions.
 ## Table of Contents
 
 - [How to use](#how-to-use)
+- [Bash and Zsh (Linux and macOS)](#bash-and-zsh-linux-and-macos)
 - [Why Learn This System?](#why-learn-this-system)
 - [Command Aliases](#command-aliases)
   - [Git - The "G" System](#git---the-g-system-)
@@ -78,8 +79,9 @@ Install-Module PSKubectlCompletion -Scope CurrentUser
 # Find your profile path
 $profile
 
-# Copy the profile (adjust source path as needed)
+# Copy the profile and the generated kubectl aliases it loads (adjust source path as needed)
 Copy-Item Microsoft.Powershell_profile.ps1 $PROFILE
+Copy-Item k-aliases.ps1 (Split-Path $PROFILE -Parent)
 ```
 
 3. **Reload your profile:**
@@ -97,6 +99,54 @@ Test that everything works:
 ```
 
 All tests should pass! ✅
+
+## Bash and Zsh (Linux and macOS)
+
+The kubectl "K" system also works in bash and zsh. Only the K system is ported; the Git and
+Terraform aliases and the PowerShell helpers are not. All 788 names and their expansions are
+the same, including the destructive ones (`kxpaa` is still `kubectl delete pods --all`).
+
+```sh
+python3 tools/generate_aliases.py     # only if posix/ is missing or you changed k-grammar.toml
+sh posix/install.sh                   # same as --shell auto: bash or zsh, from $SHELL
+sh posix/install.sh --shell both      # or: bash, zsh
+sh posix/install.sh --dry-run         # show what would change
+sh posix/install.sh uninstall         # both shells (default); or --shell bash|zsh|auto
+```
+
+The installer copies the shell files to `${XDG_DATA_HOME:-~/.local/share}/devops-k-aliases`
+and adds one marked block to `~/.bashrc` and/or `~/.zshrc` that sources them. It changes
+nothing else, backs up an rc file before editing it (backups are never overwritten), writes
+through symlinks, does nothing when run again, and `uninstall` puts the rc files back exactly
+as they were (a file that did not end in a newline gains one). bash and zsh share one copy of
+the files, so `uninstall --shell bash` removes only bash's block and keeps the files while zsh's
+rc file still uses them; they go when the last shell is uninstalled. An rc file whose markers
+are damaged or out of order is refused before anything is changed. Use `--bashrc ~/.bash_profile`
+if your terminal starts login shells, as macOS Terminal does. `ZDOTDIR` is honoured.
+
+**Tab completion** understands what each alias stands for: `kzgp <TAB>` completes like
+`kubectl --namespace=kube-system get pods <TAB>`, so flags, flag values and (with a reachable
+cluster) resource names come from kubectl itself and are scoped the same way. It needs
+`kubectl` on `PATH`; bash also needs bash 4.1+ and the bash-completion package (v2), as
+kubectl's own bash completion does. kubectl's completion is loaded on first use, so shell
+start-up stays fast. In zsh, completion is registered at the first prompt if `compinit` has
+not run yet.
+
+**Differences from the PowerShell version**
+
+| | PowerShell | Bash / zsh |
+|---|---|---|
+| Definition | functions calling `& kubectl ... $args` | functions calling `\kubectl ... "$@"` |
+| `kubectl` lookup | honours a user alias or function named `kubectl` | honours a user `kubectl` **function** (a wrapper); an **alias** named `kubectl` is not expanded (`\kubectl` suppresses alias expansion, so it is neither baked in when the file loads nor used when the aliases run) |
+| Arguments | splatted with `$args` | forwarded verbatim; nothing is evaluated |
+| Existing aliases with the same name | n/a | removed for the session when the file is loaded (e.g. the oh-my-zsh `kubectl` plugin defines `kgp`, `kdp`, ...) |
+| Completion | PSKubectlCompletion | kubectl's own completion, with each alias' fixed arguments filled in |
+| Git, Terraform, `dy`/`f` | yes / removed | not ported |
+
+A `kubectl` wrapper function must call the real binary (`command kubectl "$@"`), not one of
+these aliases, or it would call itself. The installer warns if a name already exists as a
+command on `PATH`; the function takes precedence. Not supported: fish. Not tested: macOS (the tests ran on Linux), including its
+system bash 3.2, whose completion cannot work anyway without bash 4.1+ and bash-completion.
 
 ## Why Learn This System?
 
@@ -163,10 +213,9 @@ gbd     - git branch -d              (G + Branch Delete)
 </details>
 
 <details>
-<summary><strong>▶ Tier 3: Status, Diff & Stash</strong> (Click to expand)</summary>
+<summary><strong>▶ Tier 3: Diff & Stash</strong> (Click to expand)</summary>
 
 ```
-gs      - git status                 (G + Status)
 gd      - git diff                   (G + Diff)
 gds     - git diff --staged          (G + Diff Staged)
 gst     - git stash                  (G + STash)
@@ -283,9 +332,9 @@ ta                          # Apply (with auto-approve)
 kg      - kubectl get                (K + Get)
 kd      - kubectl describe           (K + Describe)
 kx      - kubectl delete             (K + eXterminate - exception!)
-ka      - kubectl apply              (K + Apply)
-kl      - kubectl logs               (K + Logs)
-ke      - kubectl exec               (K + Exec)
+ka      - kubectl apply --recursive -f   (K + Apply; pass a path: ka deploy.yaml)
+kl      - kubectl logs -f            (K + Logs; always follows)
+ke      - kubectl exec -i -t         (K + Exec)
 ```
 
 **⚠️ ⚠️ ⚠️ DESTRUCTIVE COMMAND ⚠️ ⚠️ ⚠️**
@@ -324,7 +373,7 @@ no      - node                      (first two: NOde)
 y       - yaml output               (Y = Yaml)
 j       - json output               (J = Json)
 o       - wide output               (O = Output-wide)
-aa      - all/all-namespaces         (double A = "all")
+aa      - all-namespaces (delete: --all)  (double A = "all")
 w       - watch                     (W = Watch)
 sl      - show-labels               (Show Labels)
 ```
@@ -375,7 +424,12 @@ k  + g  + de + y   = kgdey        (get deployment yaml)
    - `sv` = service (avoids conflict with secret)
 
 3. **Double letters** for "all" modifier
-   - `aa` = all/all-namespaces
+   - `aa` = `--all-namespaces` with `get`/`describe`
+   - `aa` = `--all` with `x` (delete): `kxpaa` = `kubectl delete pods --all`, which deletes every pod in the **current** namespace. Treat any `kx…aa` alias as destructive.
+
+4. **Long forms** are synonyms: `kgpaaoyaml` = `kgpaay`, and likewise `owide`/`ojson` and `all` (for `aa`)
+
+5. **`n` means two things**: as a resource, `n` is namespaces (`kgn`); as a trailing flag it is `--namespace` (`kgpn`). `kgno` is nodes, so namespaces with wide output is `kgnso`/`kgnsoall`.
 
 ### Kubectl Quick Reference
 
@@ -419,13 +473,6 @@ k  + g  + de + y   = kgdey        (get deployment yaml)
 │ kgpsl    - get pods show-labels         │
 │ kzgp     - get pods (kube-system)       │
 └─────────────────────────────────────────┘
-```
-
-### Helper Functions
-
-```
-dy      - dry-run yaml                (for: k create deploy nginx --image=nginx dy)
-f       - force kill                  (for: k delete pod x f)
 ```
 
 ### Anti-Patterns ⚠️
@@ -477,12 +524,12 @@ pwsh -File .\Test-Profile.ps1
 
 The test suite validates:
 
-- ✅ **Git Aliases** - All 18 documented git aliases
+- ✅ **Git Aliases** - All 17 documented git aliases
 - ✅ **Terraform Aliases** - All 8 terraform commands
 - ✅ **Kubectl Base Commands** - All 8 base verbs (k, kg, kd, kx, etc.)
 - ✅ **Kubectl Resource Commands** - All 11 common resource combinations
 - ✅ **Kubectl Output Formats** - All 7 output format combinations
-- ✅ **Helper Functions** - dy and f functions
+- ✅ **Kubectl expansions** - every `k*` function's body is compared with `tests/k-aliases.tsv`
 
 ### Test Output
 
@@ -524,6 +571,11 @@ You can integrate this into CI/CD pipelines:
   run: pwsh -File ./Test-Profile.ps1
 ```
 
+This repository's own workflow (`.github/workflows/ci.yml`) also runs the generator and
+PowerShell tests, the bash/zsh tests (`python3 -m unittest discover -s tests -p 'test_posix_*.py'`,
+which need bash, zsh, kubectl and bash-completion, and skip what is missing) and ShellCheck on
+Linux, and the installer smoke test on Windows.
+
 ### Manual Testing
 
 To manually verify a specific alias:
@@ -555,7 +607,7 @@ ga .                        # 2. Add changes
 gcmsg "Add feature xyz"     # 3. Commit
 tp                          # 4. Plan terraform
 ta                          # 5. Apply terraform
-ka -f deploy.yaml           # 6. Apply k8s manifest
+ka deploy.yaml              # 6. Apply k8s manifest (ka already includes --recursive -f)
 kgpw                        # 7. Watch pods deploy
 gp                          # 8. Push code
 ```
@@ -763,8 +815,15 @@ We welcome contributions! Here's how to add new aliases or improve existing ones
    - Check for conflicts: `Get-Alias <proposed-name>`
 
 2. **Include in profile:**
-   - Add function to `Microsoft.Powershell_profile.ps1`
-   - Place in appropriate section (Git, Terraform, or Kubectl)
+   - Git and Terraform: add the function to `Microsoft.Powershell_profile.ps1`
+   - Kubectl: do **not** edit `k-aliases.ps1` (generated). Edit `k-grammar.toml`, then run
+     `python3 tools/generate_aliases.py` (Python 3.11+) and commit both files.
+   - `tests/k-aliases.tsv` is the frozen list of the original 788 aliases and a test pins its
+     hash. Never edit it. Mark new `[[commands]]`/`[[aliases]]` entries with
+     `added = "x.y.z"` (the release that adds them) and list their names in
+     `tests/k-additions.tsv` (`name<TAB>kubectl args`).
+   - The generator rejects malformed entries, unknown keys, unsafe argument tokens and
+     duplicate names, so run it before committing.
 
 3. **Update documentation:**
    - Add to README in appropriate tier
@@ -792,10 +851,17 @@ function kgp { & kubectl get pods $args }
 
 ### Testing Your Changes
 
-1. Run the test suite:
+1. Run the test suites:
    ```powershell
    .\Test-Profile.ps1
    ```
+   ```bash
+   python3 -m unittest discover -s tests -v          # grammar vs the manifests, quiz, validation
+   python3 tools/generate_aliases.py --check         # k-aliases.ps1 is up to date
+   pwsh -NoProfile -File tests/Smoke-Install.ps1     # installs into a temp dir and tests the result
+   ```
+   Tests that need PowerShell 7 (`pwsh`, or set `PWSH`) are skipped when it is missing. CI
+   runs everything on Linux and runs the installer smoke test on Windows.
 
 2. Test manually:
    ```powershell
