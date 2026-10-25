@@ -87,7 +87,12 @@ function relax {
 # l = -l/--selector
 
 # kubectl aliases, generated from k-grammar.toml (python3 tools/generate_aliases.py)
-. "$PSScriptRoot/k-aliases.ps1"
+$kubectlAliasFile = Join-Path $PSScriptRoot "k-aliases.ps1"
+if (Test-Path -LiteralPath $kubectlAliasFile) {
+    . $kubectlAliasFile
+} else {
+    Write-Warning "k-aliases.ps1 was not found next to this profile ($PSScriptRoot), so the kubectl aliases are not loaded. Re-run Install-Profile.ps1, or copy k-aliases.ps1 into the same folder as this profile."
+}
 
 # Usage tracking for aliases (optional, disabled by default)
 # Enable with: $env:TRACK_ALIAS_USAGE = "true"

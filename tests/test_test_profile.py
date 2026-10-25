@@ -105,6 +105,48 @@ class QuizIsReachable(unittest.TestCase):
         self.assertNotIn("Testing Terraform Aliases", result.stdout)
 
 
+@unittest.skipUnless(PWSH, "PowerShell 7 (pwsh) not available")
+class ProfileNeedsItsGeneratedAliasFile(unittest.TestCase):
+    """The profile loads the kubectl aliases from k-aliases.ps1 next to it.
+
+    Until 3.0 a manual install was "copy the profile file". Doing only that now leaves no
+    kubectl aliases, so the profile must say why instead of a bare "term is not recognized".
+    """
+
+    def load_profile(self, with_aliases: bool) -> str:
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "profile"
+            folder.mkdir()
+            shutil.copy(ROOT / "Microsoft.Powershell_profile.ps1", folder)
+            if with_aliases:
+                shutil.copy(ROOT / "k-aliases.ps1", folder)
+            (Path(tmp) / "home" / "Workspace").mkdir(parents=True)
+            modules = Path(tmp) / "modules"
+            for name, body in STUB_MODULES.items():
+                (modules / name).mkdir(parents=True)
+                (modules / name / f"{name}.psm1").write_text(body, encoding="utf-8")
+            env = dict(os.environ, PSModulePath=str(modules), HOME=str(Path(tmp) / "home"),
+                       USERPROFILE=str(Path(tmp) / "home"), DOTNET_SYSTEM_GLOBALIZATION_INVARIANT="1")
+            command = (f". '{folder / 'Microsoft.Powershell_profile.ps1'}'; "
+                       "'KGP=' + [bool](Get-Command kgp -ErrorAction SilentlyContinue); "
+                       "'TI=' + [bool](Get-Command ti -ErrorAction SilentlyContinue)")
+            result = subprocess.run([PWSH, "-NoProfile", "-Command", command], capture_output=True,
+                                    text=True, env=env, timeout=120, encoding="utf-8")
+            return result.stdout + result.stderr
+
+    def test_a_missing_file_gives_a_clear_warning_and_the_rest_of_the_profile_still_loads(self):
+        output = self.load_profile(with_aliases=False)
+        self.assertIn("k-aliases.ps1 was not found", output)
+        self.assertIn("Install-Profile.ps1", output)  # says how to fix it
+        self.assertIn("KGP=False", output)
+        self.assertIn("TI=True", output)  # terraform aliases from the same profile are unaffected
+
+    def test_with_the_file_present_there_is_no_warning(self):
+        output = self.load_profile(with_aliases=True)
+        self.assertNotIn("was not found", output)
+        self.assertIn("KGP=True", output)
+
+
 class DocumentedGitAliasesAreExactlyTheTestedOnes(unittest.TestCase):
     """The README, Test-Profile.ps1 and the stand-in module must list the same Git aliases.
 
