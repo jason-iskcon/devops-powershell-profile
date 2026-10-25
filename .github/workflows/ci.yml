@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  generator:
+    name: Grammar, generator and PowerShell tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: k-aliases.ps1 is up to date
+        run: python tools/generate_aliases.py --check
+      # pwsh is preinstalled on GitHub's Ubuntu runners; tests that need it skip if it is missing.
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+  windows-install-smoke:
+    name: Installer and generated functions (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the PowerShell modules the profile imports
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module posh-git, git-aliases, PSKubectlCompletion -Scope CurrentUser -Force
+      # Installs into a temporary directory and never touches the runner's real profile.
+      - name: Smoke test Install-Profile.ps1 and Test-Profile.ps1
+        shell: pwsh
+        run: ./tests/Smoke-Install.ps1

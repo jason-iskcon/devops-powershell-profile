@@ -12,7 +12,13 @@ Write-Host "`n=== PowerShell Profile Installation ===" -ForegroundColor Cyan
 Write-Host "This script will install the DevOps-focused PowerShell profile.`n" -ForegroundColor Yellow
 
 # Check if running as admin (needed for module installation)
-$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+# WindowsPrincipal only exists on Windows; on Linux/macOS (PowerShell 7) there is nothing to elevate.
+$onWindows = ($PSVersionTable.PSEdition -eq "Desktop") -or $IsWindows
+$isAdmin = if ($onWindows) {
+    ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+} else {
+    $true
+}
 
 if (-not $SkipModules -and -not $isAdmin) {
     Write-Host "⚠️  Warning: Not running as administrator." -ForegroundColor Yellow
