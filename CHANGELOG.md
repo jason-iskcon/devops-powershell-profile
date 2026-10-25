@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- `Test-Profile.ps1 -Quiz` was unreachable because the summary exited first; the exit code is
+  now deferred until after the quiz (regression test in `tests/test_test_profile.py`).
+- `Install-Profile.ps1` called a Windows-only API unconditionally and failed on PowerShell 7
+  for Linux/macOS.
 - `kgn`, `kdn`, `kxn` were defined twice; the later `--namespace` definitions silently
   overrode the documented `get/describe/delete namespaces`. The duplicates are removed.
 - `Test-Profile.ps1` could never fail: results were appended to function-local copies, so it
@@ -27,6 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Editing the aliases now means editing the grammar (see Contribution Guidelines).
 
 ### Added
+- GitHub Actions workflow: grammar/generator/PowerShell tests on Linux, and an installer
+  smoke test on Windows (`tests/Smoke-Install.ps1`, which installs into a temporary
+  directory).
+- Aliases added after the original 788 are marked `added = "x.y.z"` in `k-grammar.toml` and
+  listed in `tests/k-additions.tsv`; `tests/k-aliases.tsv` is frozen and its hash is tested.
+- The generator now rejects unknown keys, bad references, unused blocks, malformed or
+  repeated modifier sequences, reserved or unsafe names, and argument tokens that would not
+  be inert in the unquoted PowerShell output.
 - `tests/k-aliases.tsv`: the 788 `k*` names and their kubectl arguments. `Test-Profile.ps1`
   checks every function body against it and fails on duplicate or unlisted definitions.
 - README/profile notes on `aa` meaning `--all` for delete (`kxpaa`), long-form synonyms

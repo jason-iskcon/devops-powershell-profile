@@ -764,8 +764,13 @@ We welcome contributions! Here's how to add new aliases or improve existing ones
 2. **Include in profile:**
    - Git and Terraform: add the function to `Microsoft.Powershell_profile.ps1`
    - Kubectl: do **not** edit `k-aliases.ps1` (generated). Edit `k-grammar.toml`, then run
-     `python3 tools/generate_aliases.py` (Python 3.11+) and commit both files. Add the new
-     names to `tests/k-aliases.tsv` (`name<TAB>kubectl args`).
+     `python3 tools/generate_aliases.py` (Python 3.11+) and commit both files.
+   - `tests/k-aliases.tsv` is the frozen list of the original 788 aliases and a test pins its
+     hash. Never edit it. Mark new `[[commands]]`/`[[aliases]]` entries with
+     `added = "x.y.z"` (the release that adds them) and list their names in
+     `tests/k-additions.tsv` (`name<TAB>kubectl args`).
+   - The generator rejects malformed entries, unknown keys, unsafe argument tokens and
+     duplicate names, so run it before committing.
 
 3. **Update documentation:**
    - Add to README in appropriate tier
@@ -798,9 +803,12 @@ function kgp { & kubectl get pods $args }
    .\Test-Profile.ps1
    ```
    ```bash
-   python3 -m unittest discover -s tests -v          # grammar vs tests/k-aliases.tsv
+   python3 -m unittest discover -s tests -v          # grammar vs the manifests, quiz, validation
    python3 tools/generate_aliases.py --check         # k-aliases.ps1 is up to date
+   pwsh -NoProfile -File tests/Smoke-Install.ps1     # installs into a temp dir and tests the result
    ```
+   Tests that need PowerShell 7 (`pwsh`, or set `PWSH`) are skipped when it is missing. CI
+   runs everything on Linux and runs the installer smoke test on Windows.
 
 2. Test manually:
    ```powershell
