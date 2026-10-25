@@ -113,4 +113,5 @@ if ($env:TRACK_ALIAS_USAGE -eq "true") {
 }
 
 Set-Location ~/Workspace
-Clear-Host
+# Clear-Host throws "The handle is invalid" when there is no console (CI, redirected output).
+if (-not [Console]::IsOutputRedirected) { Clear-Host }

@@ -62,6 +62,13 @@ class QuizIsReachable(unittest.TestCase):
         self.assertIn("=== Test Summary ===", result.stdout, result.stderr)
         self.assertNotIn("Quiz", result.stdout)
 
+    def test_loading_the_profile_does_not_clear_a_redirected_screen(self):
+        # Clear-Host throws "The handle is invalid" without a console (found on a Windows CI
+        # runner); with output captured, as here, the profile must not call it at all.
+        result = self.run_test_profile()
+        self.assertIn("Profile loaded successfully", result.stdout, result.stderr)
+        self.assertNotIn("\x1b[H", result.stdout)
+
     def test_failing_checks_still_set_the_exit_code_when_the_quiz_runs(self):
         # The profile only loads with the stub modules above, which define no git aliases,
         # so the git checks fail: the exit code must report that even after a perfect quiz.
