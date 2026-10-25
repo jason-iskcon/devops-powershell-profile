@@ -54,7 +54,7 @@ See [How to use](#how-to-use) for detailed installation instructions.
 | Platform | Status | Evidence |
 |---|---|---|
 | Windows, PowerShell 7 | **Tested** | CI (`windows-latest`): installs, reinstalls, loads in a fresh shell, and the full `Test-Profile.ps1` passes against the real modules |
-| Windows PowerShell 5.1 | PENDING_CI | CI job "Installer and profile under Windows PowerShell 5.1" |
+| Windows PowerShell 5.1 | **Tested with stand-in modules** | CI: installs, reinstalls, loads in a fresh `powershell.exe` and passes the kubectl checks. Installing the real PowerShell Gallery modules under 5.1 hung in CI and is **not verified**. Before 3.0.0 the installer did not even parse on 5.1 |
 | Linux, PowerShell 7 | Profile and test suite tested | CI (`ubuntu-latest`) runs the profile and `Test-Profile.ps1` with stand-in modules; the installer smoke test was run on Linux by hand only |
 | Linux, Bash 5 and Zsh 5.9 | **Tested** | CI (`ubuntu-latest`): every function, completion (including interactive Tab in real shells with the real kubectl) and the installer |
 | macOS (any shell, including its bash 3.2) | **Not tested** | Nothing has been run on macOS |

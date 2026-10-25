@@ -44,7 +44,8 @@ two helper functions were removed. See "Upgrading from 2.0.0" in the README.
   in `tests/k-additions.tsv`.
 - **Continuous integration** (GitHub Actions): grammar and PowerShell tests on Linux; Bash and
   Zsh tests with ShellCheck on Linux; installer smoke test and the full `Test-Profile.ps1`
-  against the real PowerShell modules on Windows (PowerShell 7 and Windows PowerShell 5.1).
+  against the real PowerShell modules on Windows PowerShell 7, and with stand-in modules on
+  Windows PowerShell 5.1.
 - `Test-Profile.ps1 -KubectlOnly` checks just the kubectl functions.
 - A clear start-up warning when `k-aliases.ps1` is missing next to the profile.
 - `tests/test_release_metadata.py` keeps the version identical in the README, the profile
@@ -69,6 +70,12 @@ two helper functions were removed. See "Upgrading from 2.0.0" in the README.
 - `Install-Profile.ps1` called a Windows-only API unconditionally and failed on PowerShell 7
   for Linux and macOS.
 - Loading the profile threw "The handle is invalid" when there was no console (`Clear-Host`).
+- **`Install-Profile.ps1`, `Test-Profile.ps1` and `Export-Anki.ps1` did not parse under Windows
+  PowerShell 5.1** ("The string is missing the terminator"). They are UTF-8 without a byte-order
+  mark and contain characters such as `✓`; 5.1 reads such a file as Windows-1252, where a byte of
+  `✓` is a curly double quote that PowerShell treats as a string delimiter. They now start with a
+  UTF-8 BOM (no change on PowerShell 7), and `tests/test_encoding.py` keeps it that way. Earlier
+  releases claimed 5.1 support without it ever being run.
 
 ### Removed
 - The `gs` (git status) alias from the README, `Test-Profile.ps1`, the Anki export and the

@@ -3,9 +3,9 @@
 `[x]` means it was done **and the evidence is named**. `[ ]` means it is open: either an owner
 action, or something that has **not** been verified. Nothing here is ticked on assumption.
 
-Evidence was gathered on release-candidate commit `@RC_SHA@` (branch `release/rc-prep`, based on
-`main` at merge commit `11341d1`). Local tool versions: bash 5.2.21, zsh 5.9, PowerShell 7.4.6,
-kubectl v1.37.1 (checksum verified), ShellCheck 0.11.0, Python 3.13. CI: @RC_RUN@.
+Evidence was gathered on release-candidate code commit `cd15814` (branch `release/rc-prep`, based on
+`main` at merge commit `11341d1`); later commits change documentation only. Local tool versions: bash 5.2.21, zsh 5.9, PowerShell 7.4.6,
+kubectl v1.37.1 (checksum verified), ShellCheck 0.11.0, Python 3.13. CI: [run 40152676325](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40152676325), all four jobs green.
 
 ## 1. Version and metadata
 
@@ -59,8 +59,14 @@ broken, which defeats the purpose. Everything else (Bash/Zsh, generator, tests, 
 - [x] Windows PowerShell 7: install, reinstall over an existing profile (backup made exactly once),
       fresh-shell load, 788 expansions — CI job "Installer and generated functions (Windows)",
       `tests/Smoke-Install.ps1`, plus the full `Test-Profile.ps1` against the real modules.
-- [ ] Windows PowerShell 5.1 — CI job "Installer and profile under Windows PowerShell 5.1":
-      @PS51_CHECKLIST@
+- [x] Windows PowerShell 5.1 (`powershell.exe`) with **stand-in modules**: install, reinstall (one
+      backup), fresh-shell load, 788 expansions (`Test-Profile.ps1 -KubectlOnly`, 814 of 814) — CI job
+      "Installer and profile under Windows PowerShell 5.1 (stand-in modules)".
+- [ ] Windows PowerShell 5.1 with the **real** PowerShell Gallery modules — **not verified**: that CI
+      job hung while installing them (twice; cause not determined), so the job uses stand-ins.
+- [x] The scripts parse under 5.1: `Install-Profile.ps1`, `Test-Profile.ps1` and `Export-Anki.ps1`
+      failed to parse there until a UTF-8 BOM was added (found by this CI job);
+      `tests/test_encoding.py` keeps it that way.
 - [x] Upgrade by copying only the profile file: reproduced; now gives a clear warning
       (`tests/test_test_profile.py`: `ProfileNeedsItsGeneratedAliasFile`).
 - [x] Bash and Zsh install, `--shell auto|bash|zsh|both`, idempotence (second run changes
@@ -77,17 +83,17 @@ broken, which defeats the purpose. Everything else (Bash/Zsh, generator, tests, 
 
 ## 4. Testing
 
-- [x] Full suite with every external tool present: **106 tests, OK, none skipped**
+- [x] Full suite with every external tool present: **114 tests, OK, none skipped**
       (`python3 -m unittest discover -s tests`).
 - [x] Generator consistency: `python3 tools/generate_aliases.py --check` — all generated files
       current (also a CI step).
 - [x] ShellCheck 0.11.0 clean on `posix/install.sh` (sh) and the bash files (also a CI step).
 - [x] Tests that depend on something external were identified. With `pwsh` and `kubectl` hidden,
-      **13 of 106 skip**: 7 need PowerShell 7 (`PWSH`), 6 need the real kubectl
+      **15 of 114 skip**: 9 need PowerShell 7 (`PWSH`), 6 need the real kubectl
       (`KUBECTL`; the bash ones also need bash-completion). The Bash/Zsh tests need a POSIX system
       and do not run on Windows. CI asserts the tools are present so nothing skips silently there.
 - [x] CI covers Linux (grammar, PowerShell, Bash, Zsh) and Windows (PowerShell 7; 5.1 see section 3).
-      Main at merge commit `11341d1`: run 40150961485, all jobs green. RC: @RC_RUN@.
+      Main at merge commit `11341d1`: run 40150961485, all jobs green. RC: [run 40152676325](https://github.com/jason-iskcon/devops-powershell-profile/actions/runs/40152676325) (four jobs green).
 - [ ] Live resource-name completion (pod names etc.) — **not tested**: no cluster was available.
       What is tested: kubectl receives the right implicit arguments, and flags and flag values
       complete.
