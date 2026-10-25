@@ -49,12 +49,17 @@ try {
 
     Write-Host "`n--- Load the installed profile in a fresh PowerShell ---" -ForegroundColor Cyan
     $pwsh = (Get-Process -Id $PID).Path
-    $probe = '. $env:SMOKE_PROFILE 2>$null; ' +
-             '"kgpaa=" + (Get-Command kgpaa).ScriptBlock.ToString().Trim(); ' +
-             '"kxpaa=" + (Get-Command kxpaa).ScriptBlock.ToString().Trim(); ' +
-             '"kzgpw=" + (Get-Command kzgpw).ScriptBlock.ToString().Trim()'
+    # A script file, not -Command: Windows PowerShell 5.1 strips the inner double quotes from a
+    # -Command string passed to a child process, which turns the probe into nonsense.
+    $probeFile = Join-Path $temp "probe.ps1"
+    Set-Content -Path $probeFile -Encoding ASCII -Value @'
+. $env:SMOKE_PROFILE 2>$null
+"kgpaa=" + (Get-Command kgpaa).ScriptBlock.ToString().Trim()
+"kxpaa=" + (Get-Command kxpaa).ScriptBlock.ToString().Trim()
+"kzgpw=" + (Get-Command kzgpw).ScriptBlock.ToString().Trim()
+'@
     $env:SMOKE_PROFILE = $PROFILE
-    $output = & $pwsh -NoProfile -Command $probe 2>&1 | Out-String
+    $output = & $pwsh -NoProfile -ExecutionPolicy Bypass -File $probeFile 2>&1 | Out-String
     Assert-That ($output -match [regex]::Escape('kgpaa=& kubectl get pods --all-namespaces $args')) "kgpaa expands to get pods --all-namespaces"
     Assert-That ($output -match [regex]::Escape('kxpaa=& kubectl delete pods --all $args')) "kxpaa expands to delete pods --all"
     Assert-That ($output -match [regex]::Escape('kzgpw=& kubectl --namespace=kube-system get pods --watch $args')) "kzgpw targets kube-system"

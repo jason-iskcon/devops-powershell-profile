@@ -1,11 +1,13 @@
 # powershell-profile
 
-> **Last updated:** 2024 | **Version:** 2.0.0
+> **Last updated:** 2026-10 | **Version:** 3.0.0
 
-A DevOps-focused PowerShell profile with a comprehensive mnemonic system for Git, Terraform, and Kubectl commands.
+A DevOps-focused PowerShell profile with a comprehensive mnemonic system for Git, Terraform, and Kubectl commands. The kubectl "K system" also works in Bash and Zsh.
 
 **Features:**
-- 🚀 **54+ terse aliases** - Reduce typing by 80-90%
+- 🚀 **788 kubectl aliases** (plus 17 Git and 8 Terraform) - Reduce typing by 80-90%
+- 🐧 **Bash and Zsh** - the same kubectl aliases, with kubectl-aware tab completion
+- 🔒 **Safe, reversible installers** - idempotent, backups never overwritten, one marked block per shell file
 - 🧠 **Mnemonic system** - Easy to remember with tiered learning
 - ✅ **Test suite** - Validate all aliases work correctly
 - 📚 **Interactive quiz** - Test your knowledge
@@ -14,7 +16,10 @@ A DevOps-focused PowerShell profile with a comprehensive mnemonic system for Git
 
 **Quick Install:**
 ```powershell
-.\Install-Profile.ps1
+.\Install-Profile.ps1        # PowerShell (Windows)
+```
+```sh
+sh posix/install.sh           # Bash / Zsh (Linux)
 ```
 
 📖 **New to this?** Start with the [Quick Start Guide](QUICKSTART.md) (5 minutes)
@@ -24,6 +29,8 @@ See [How to use](#how-to-use) for detailed installation instructions.
 ## Table of Contents
 
 - [How to use](#how-to-use)
+  - [Requirements and supported platforms](#requirements-and-supported-platforms)
+  - [Upgrading from 2.0.0](#upgrading-from-200)
 - [Bash and Zsh (Linux and macOS)](#bash-and-zsh-linux-and-macos)
 - [Why Learn This System?](#why-learn-this-system)
 - [Command Aliases](#command-aliases)
@@ -41,6 +48,24 @@ See [How to use](#how-to-use) for detailed installation instructions.
 - [Troubleshooting](#troubleshooting)
 
 ## How to use
+
+### Requirements and supported platforms
+
+| Platform | Status | Evidence |
+|---|---|---|
+| Windows, PowerShell 7 | **Tested** | CI (`windows-latest`): installs, reinstalls, loads in a fresh shell, and the full `Test-Profile.ps1` passes against the real modules |
+| Windows PowerShell 5.1 | **Tested with stand-in modules** | CI: installs, reinstalls, loads in a fresh `powershell.exe` and passes the kubectl checks. Installing the real PowerShell Gallery modules under 5.1 hung in CI and is **not verified**. Before 3.0.0 the installer did not even parse on 5.1 |
+| Linux, PowerShell 7 | Profile and test suite tested | CI (`ubuntu-latest`) runs the profile and `Test-Profile.ps1` with stand-in modules; the installer smoke test was run on Linux by hand only |
+| Linux, Bash 5 and Zsh 5.9 | **Tested** | CI (`ubuntu-latest`): every function, completion (including interactive Tab in real shells with the real kubectl) and the installer |
+| macOS (any shell, including its bash 3.2) | **Not tested** | Nothing has been run on macOS |
+| Fish and other shells | Not supported | |
+
+What you need:
+
+- **PowerShell profile:** the PowerShell modules `posh-git`, `git-aliases` and `PSKubectlCompletion` (`Install-Profile.ps1` installs them for the current user), and `kubectl`.
+- **Bash and Zsh:** `kubectl` for tab completion. Bash completion also needs bash 4.1 or later and the bash-completion package (v2); Zsh completion needs `compinit`.
+- **Python 3.11 or later** is only needed to regenerate the alias files or run the tests, not to use the aliases.
+- Live resource-name completion (for example pod names) comes from kubectl and needs a reachable cluster; the tests do not cover it.
 
 ### Quick Install (Recommended)
 
@@ -60,8 +85,8 @@ Run the automated installation script:
 The script will:
 1. Install required PowerShell modules (posh-git, git-aliases, PSKubectlCompletion)
 2. Create your profile directory if needed
-3. Copy the profile file to the correct location
-4. Create a backup of existing profile (if present)
+3. Copy the profile file and `k-aliases.ps1` (the generated kubectl aliases it loads) to the correct location
+4. Back up an existing profile when run with `-Force`; without it, ask before overwriting
 
 ### Manual Install
 
@@ -89,6 +114,16 @@ Copy-Item k-aliases.ps1 (Split-Path $PROFILE -Parent)
 ```powershell
 . $PROFILE
 ```
+
+### Upgrading from 2.0.0
+
+Re-run `Install-Profile.ps1` (add `-Force` to back up and replace your current profile), then open a new shell. Three things differ from 2.0.0:
+
+1. **`dy` and `f` are gone.** Write `--dry-run=client -o=yaml` and `--force --grace-period=0`.
+2. **`kgn`, `kdn` and `kxn` now mean `get|describe|delete namespaces`**, as documented. In 2.0.0 a duplicate definition made them `... --namespace`.
+3. **The kubectl aliases live in `k-aliases.ps1`.** If you copied only the profile file by hand, you now get a warning at start-up and no kubectl aliases until `k-aliases.ps1` sits next to the profile.
+
+The other 785 kubectl aliases behave exactly as before.
 
 ### Verify Installation
 
@@ -519,6 +554,17 @@ pwsh -File .\Test-Profile.ps1
 ```powershell
 .\Test-Profile.ps1 -Verbose
 ```
+
+**Only the kubectl functions** (skips the Git and Terraform aliases, which come from third-party modules):
+```powershell
+.\Test-Profile.ps1 -KubectlOnly
+```
+
+**The wider suite** (grammar, generator, Bash and Zsh, installers) is Python's `unittest`:
+```sh
+python3 -m unittest discover -s tests -v
+```
+Tests that need an external tool skip when it is missing: PowerShell 7 (`pwsh`, or set `PWSH`) for the profile and quiz tests, and the real `kubectl` (on `PATH`, or set `KUBECTL`) plus bash-completion for the interactive Tab-completion tests. The Bash/Zsh tests need a POSIX system with `bash` and `zsh`; they do not run on Windows.
 
 ### What Gets Tested
 
