@@ -161,15 +161,15 @@ class DocumentedGitAliasesAreExactlyTheTestedOnes(unittest.TestCase):
         git = readme[readme.index('### Git - The "G" System'):readme.index('### Terraform - The "T" System')]
         return set(re.findall(r"(?m)^(g[a-z]+)\s+- git ", git))
 
-    def tested_aliases(self) -> set[str]:
+    def aliases_checked_by_test_profile(self) -> set[str]:
         text = (ROOT / "Test-Profile.ps1").read_text(encoding="utf-8")
         return set(re.findall(r'@\{Name="(g[a-z]+)"; Desc="git ', text))
 
     def test_readme_and_test_profile_list_the_same_git_aliases(self):
-        self.assertEqual(self.documented_aliases(), self.tested_aliases())
+        self.assertEqual(self.documented_aliases(), self.aliases_checked_by_test_profile())
 
     def test_the_stand_in_module_defines_exactly_those_aliases(self):
-        self.assertEqual(set(GIT_ALIASES), self.tested_aliases())
+        self.assertEqual(set(GIT_ALIASES), self.aliases_checked_by_test_profile())
 
     def test_gs_is_not_expected_anywhere(self):
         for name in ("README.md", "Test-Profile.ps1", "Export-Anki.ps1"):
