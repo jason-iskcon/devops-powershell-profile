@@ -1,4 +1,4 @@
-# PowerShell Profile v2.0.0
+# PowerShell Profile v3.0.0
 # DevOps-focused profile with mnemonic aliases for Git, Terraform, and Kubectl
 # See README.md for documentation
 

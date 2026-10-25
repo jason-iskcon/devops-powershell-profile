@@ -5,77 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.0.0] - Unreleased
 
-### Fixed
-- `Test-Profile.ps1 -Quiz` was unreachable because the summary exited first; the exit code is
-  now deferred until after the quiz (regression test in `tests/test_test_profile.py`).
-- `Install-Profile.ps1` called a Windows-only API unconditionally and failed on PowerShell 7
-  for Linux/macOS.
-- `kgn`, `kdn`, `kxn` were defined twice; the later `--namespace` definitions silently
-  overrode the documented `get/describe/delete namespaces`. The duplicates are removed.
-- `Test-Profile.ps1` could never fail: results were appended to function-local copies, so it
-  always reported 0 tests and "All tests passed".
-- README example `ka -f deploy.yaml` expanded to `apply --recursive -f -f deploy.yaml`;
-  it is now `ka deploy.yaml`.
+The kubectl "K system" is now generated from one grammar and also works in Bash and Zsh.
+785 of the 788 K-system aliases behave exactly as in 2.0.0, three were corrected (below), and
+two helper functions were removed. See "Upgrading from 2.0.0" in the README.
 
-### Removed
-- `dy` and `f` helper functions. They emit strings, so as trailing words kubectl received the
-  literal text `dy`/`f` instead of the flags.
-
-### Added (Bash and Zsh)
-- `posix/`: the 788 K-system aliases as bash/zsh functions generated from `k-grammar.toml`
-  (`k-aliases.sh`), with fixed arguments shell-quoted and `"$@"` forwarding; no `eval`.
-- kubectl-aware tab completion for bash and zsh: each alias completes as the `kubectl`
-  command it stands for, using kubectl's own completion (`k-completion.bash`, `.zsh`).
-- `posix/install.sh`: idempotent, reversible, non-destructive installer for `~/.bashrc` and
-  `~/.zshrc` (one marked block, backups that are never overwritten, writes through symlinks).
-- Tests: parity of every function with the manifests in bash and zsh, argument-forwarding and
-  injection checks, completion wrapper tests, interactive Tab tests against the real kubectl,
-  and installer tests.
-
-### Changed (Bash and Zsh)
-- The functions now call `\kubectl` instead of `command kubectl`, so a user's `kubectl` shell
-  function (a wrapper that adds a context, logs, ...) is honoured, as in PowerShell, while an
-  `alias kubectl=...` is still not expanded. All 788 expansions are unchanged.
-
-### Removed
-- `gs` (git status) from the README, `Test-Profile.ps1`, the Anki export and the checklist
-  count. The real `git-aliases` module does not define it (found on a Windows CI runner), and
-  defining it in the profile would shadow Ghostscript's `gs`. The Windows CI job now runs the
-  full `Test-Profile.ps1` against the real modules, and a test keeps the documented and tested
-  Git aliases identical.
-
-### Fixed (Bash and Zsh installer)
-- `uninstall --shell bash` deleted the shared files while `~/.zshrc` still sourced them (and
-  vice versa, and also when the other shell was never installed). The shared files are now kept
-  until no remaining rc file uses them.
-- An rc file with the end marker before the begin marker passed the marker-count check, and
-  the installer then deleted everything after the begin marker. Marker order is checked, for
-  every selected file, before any change.
-- `--shell auto`, listed in the usage text, was rejected; it now picks the shell from `$SHELL`
-  (the default for install; uninstall defaults to both).
-
-### Changed
-- The 788 kubectl functions are now generated from `k-grammar.toml` by
-  `tools/generate_aliases.py` into `k-aliases.ps1`, which the profile dot-sources. The
-  generated functions are byte-for-byte the ones the profile used to contain.
-  `Install-Profile.ps1` copies `k-aliases.ps1` next to the profile; a manual install must too.
-  Editing the aliases now means editing the grammar (see Contribution Guidelines).
+### Breaking changes
+- **`dy` and `f` are removed.** They never worked through the K aliases: the documented
+  `k create deploy nginx --image=nginx dy` passes the literal word `dy`, and `(dy)` passes one
+  mangled argument. They did work when handed straight to the native command, for example
+  `kubectl delete pod x (f)`; that no longer works. Write `--dry-run=client -o=yaml` or
+  `--force --grace-period=0` instead.
+- **`kgn`, `kdn` and `kxn` now do what the README always said** (`kubectl get|describe|delete
+  namespaces`). In 2.0.0 each was defined twice and the later, undocumented definition
+  (`... --namespace $args`) was the one in effect. They are the only three of the 788 aliases
+  whose behaviour differs from 2.0.0; this was checked by loading both profiles in PowerShell
+  and comparing every function body.
+- **The kubectl aliases now live in `k-aliases.ps1`, which the profile loads from its own
+  folder.** `Install-Profile.ps1` copies both files. A manual install that copies only
+  `Microsoft.Powershell_profile.ps1` now shows a warning at start-up and has no kubectl aliases
+  until `k-aliases.ps1` is copied beside it.
 
 ### Added
-- GitHub Actions workflow: grammar/generator/PowerShell tests on Linux, and an installer
-  smoke test on Windows (`tests/Smoke-Install.ps1`, which installs into a temporary
-  directory).
-- Aliases added after the original 788 are marked `added = "x.y.z"` in `k-grammar.toml` and
-  listed in `tests/k-additions.tsv`; `tests/k-aliases.tsv` is frozen and its hash is tested.
-- The generator now rejects unknown keys, bad references, unused blocks, malformed or
-  repeated modifier sequences, reserved or unsafe names, and argument tokens that would not
-  be inert in the unquoted PowerShell output.
-- `tests/k-aliases.tsv`: the 788 `k*` names and their kubectl arguments. `Test-Profile.ps1`
-  checks every function body against it and fails on duplicate or unlisted definitions.
-- README/profile notes on `aa` meaning `--all` for delete (`kxpaa`), long-form synonyms
-  (`oyaml`, `owide`, `ojson`, `all`) and the `n` resource-vs-flag ambiguity (`kgnso`).
+- **Bash and Zsh support** (`posix/`): the 788 aliases as shell functions generated from the
+  same grammar, with fixed arguments shell-quoted and `"$@"` forwarding; no `eval`.
+- **kubectl-aware tab completion** for Bash and Zsh: `kzgp <TAB>` completes as
+  `kubectl --namespace=kube-system get pods <TAB>`, using kubectl's own completion.
+- **`posix/install.sh`**: idempotent, reversible installer for `~/.bashrc` and `~/.zshrc`
+  (one marked block, backups that are never overwritten, writes through symlinks, `--dry-run`,
+  `--shell auto|bash|zsh|both`). Uninstalling one shell keeps the files the other still uses.
+- **One source of truth**: `k-grammar.toml` expanded by `tools/generate_aliases.py` into
+  `k-aliases.ps1` and `posix/*.sh`, with `--check` to detect drift. The grammar is validated
+  (unknown keys, bad references, unused blocks, malformed sequences, reserved names, and
+  argument tokens that would not be inert in unquoted PowerShell).
+- **Compatibility contract**: `tests/k-aliases.tsv` lists the 788 original aliases and is
+  frozen (its hash is tested). New aliases carry `added = "x.y.z"` in the grammar and are listed
+  in `tests/k-additions.tsv`.
+- **Continuous integration** (GitHub Actions): grammar and PowerShell tests on Linux; Bash and
+  Zsh tests with ShellCheck on Linux; installer smoke test and the full `Test-Profile.ps1`
+  against the real PowerShell modules on Windows (PowerShell 7 and Windows PowerShell 5.1).
+- `Test-Profile.ps1 -KubectlOnly` checks just the kubectl functions.
+- A clear start-up warning when `k-aliases.ps1` is missing next to the profile.
+- `tests/test_release_metadata.py` keeps the version identical in the README, the profile
+  header, this changelog and the release notes.
+
+### Changed
+- The 788 kubectl functions are generated rather than hand-written; the generated functions are
+  byte-for-byte the ones the profile used to contain, apart from the three corrected above.
+- `Test-Profile.ps1` compares every `k*` function with the manifests and fails on duplicate or
+  unlisted definitions.
+- README and profile comments document that `aa` means `--all` with delete (`kxpaa` deletes every
+  pod in the current namespace), the long-form synonyms (`oyaml`, `owide`, `ojson`, `all`) and
+  the `n` resource-versus-flag ambiguity (`kgnso`).
+- The profile no longer calls `Clear-Host` when output is redirected.
+- The README example `ka -f deploy.yaml` is now `ka deploy.yaml`: `ka` already includes `-f`.
+
+### Fixed
+- `Test-Profile.ps1` could never fail: results were appended to function-local copies, so it
+  always reported 0 tests and "All tests passed".
+- `Test-Profile.ps1 -Quiz` was unreachable because the summary exited first.
+- A single failing check was reported as "Failed: 5" (the key count of one hashtable).
+- `Install-Profile.ps1` called a Windows-only API unconditionally and failed on PowerShell 7
+  for Linux and macOS.
+- Loading the profile threw "The handle is invalid" when there was no console (`Clear-Host`).
+
+### Removed
+- The `gs` (git status) alias from the README, `Test-Profile.ps1`, the Anki export and the
+  checklist. The real `git-aliases` module does not define it, so nothing worked differently;
+  defining it in the profile would shadow Ghostscript's `gs`.
+- The `dy` and `f` helper functions (see Breaking changes).
 
 ## [2.0.0] - 2024
 
