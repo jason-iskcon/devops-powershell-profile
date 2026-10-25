@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Expand k-grammar.toml into the kubectl alias files.
 
-    python3 tools/generate_aliases.py           # write k-aliases.ps1
-    python3 tools/generate_aliases.py --check   # fail if k-aliases.ps1 is out of date
+    python3 tools/generate_aliases.py           # write k-aliases.ps1 and posix/*.sh
+    python3 tools/generate_aliases.py --check   # fail if any generated file is out of date
 
 Requires Python 3.11+ (tomllib). Standard library only.
 """
@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shlex
 import sys
 import tomllib
 from collections import Counter
@@ -20,12 +21,30 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_GRAMMAR = ROOT / "k-grammar.toml"
 DEFAULT_POWERSHELL = ROOT / "k-aliases.ps1"
+DEFAULT_POSIX_DIR = ROOT / "posix"
+POSIX_ALIASES = "k-aliases.sh"
+POSIX_COMPLETION_DATA = "k-completion-data.sh"
 
 POWERSHELL_HEADER = """\
 # GENERATED FILE - do not edit.
 # Source: k-grammar.toml
 # Regenerate: python3 tools/generate_aliases.py
 # Naming scheme: see README.md ("Kubectl - The K System").
+"""
+
+POSIX_ALIASES_HEADER = """\
+# GENERATED FILE - do not edit.
+# Source: k-grammar.toml
+# Regenerate: python3 tools/generate_aliases.py
+# Bash and zsh. Each function runs kubectl with fixed arguments followed by your own ("$@").
+"""
+
+POSIX_COMPLETION_DATA_HEADER = """\
+# GENERATED FILE - do not edit.
+# Source: k-grammar.toml
+# Regenerate: python3 tools/generate_aliases.py
+# For each function, the kubectl arguments it supplies; used by k-completion.bash/.zsh.
+# Needs __k_names from k-aliases.sh.
 """
 
 # Alias and function names: "k" plus lowercase letters. Anything else would not be a safe
@@ -260,13 +279,57 @@ def render_powershell(aliases: list[Alias]) -> str:
     return "".join(lines)
 
 
+def _words_per_line(words: list[str], per_line: int = 10) -> str:
+    return "".join(
+        "  " + " ".join(words[i:i + per_line]) + "\n" for i in range(0, len(words), per_line)
+    )
+
+
+def render_posix_aliases(aliases: list[Alias]) -> str:
+    """Bash/zsh functions: fixed, shell-quoted arguments then "$@". No eval.
+
+    `command kubectl` skips any alias or function the user has named kubectl, so the
+    generated functions behave the same however the shell is configured.
+    """
+    out = [POSIX_ALIASES_HEADER, "\n__k_names=(\n", _words_per_line([a.name for a in aliases]), ")\n\n"]
+    out.append(
+        "# An existing alias with one of these names would be expanded while the functions below\n"
+        "# are defined (a syntax error in bash, \"defining function based on alias\" in zsh).\n"
+        'for __k_n in "${__k_names[@]}"; do unalias "$__k_n" 2>/dev/null; done\n'
+        "unset __k_n\n\n"
+    )
+    for a in aliases:
+        fixed = " ".join(shlex.quote(t) for t in ("kubectl",) + a.args)
+        out.append(f'{a.name}() {{ command {fixed} "$@"; }}\n')
+    return "".join(out)
+
+
+def render_posix_completion_data(aliases: list[Alias]) -> str:
+    """__k_implicit_args NAME: sets __k_implicit to the arguments NAME supplies to kubectl."""
+    out = [POSIX_COMPLETION_DATA_HEADER, "\n__k_implicit_args() {\n  case $1 in\n"]
+    for a in aliases:
+        out.append(f"    {a.name}) __k_implicit=({' '.join(shlex.quote(t) for t in a.args)}) ;;\n")
+    out.append("    *) __k_implicit=(); return 1 ;;\n  esac\n}\n")
+    return "".join(out)
+
+
+def generated_files(aliases: list[Alias], powershell: Path, posix_dir: Path) -> dict[Path, str]:
+    return {
+        powershell: render_powershell(aliases),
+        posix_dir / POSIX_ALIASES: render_posix_aliases(aliases),
+        posix_dir / POSIX_COMPLETION_DATA: render_posix_completion_data(aliases),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--grammar", type=Path, default=DEFAULT_GRAMMAR)
     parser.add_argument("--powershell", type=Path, default=DEFAULT_POWERSHELL,
                         help="output path (default: k-aliases.ps1)")
+    parser.add_argument("--posix-dir", type=Path, default=DEFAULT_POSIX_DIR,
+                        help="directory for the bash/zsh files (default: posix/)")
     parser.add_argument("--check", action="store_true",
-                        help="do not write; exit 1 if the output file is out of date")
+                        help="do not write; exit 1 if a generated file is out of date")
     args = parser.parse_args(argv)
 
     try:
@@ -275,17 +338,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {args.grammar}: {e}", file=sys.stderr)
         return 2
 
-    text = render_powershell(aliases)
+    files = generated_files(aliases, args.powershell, args.posix_dir)
     if args.check:
-        current = args.powershell.read_text(encoding="utf-8") if args.powershell.exists() else None
-        if current != text:
-            print(f"{args.powershell} is out of date; run python3 tools/generate_aliases.py",
-                  file=sys.stderr)
-            return 1
-        return 0
+        stale = [p for p, text in files.items()
+                 if not p.exists() or p.read_text(encoding="utf-8") != text]
+        for path in stale:
+            print(f"{path} is out of date; run python3 tools/generate_aliases.py", file=sys.stderr)
+        return 1 if stale else 0
 
-    args.powershell.write_text(text, encoding="utf-8", newline="\n")
-    print(f"wrote {args.powershell} ({len(aliases)} aliases)")
+    args.posix_dir.mkdir(parents=True, exist_ok=True)
+    for path, text in files.items():
+        path.write_text(text, encoding="utf-8", newline="\n")
+    print(f"wrote {len(files)} files for {len(aliases)} aliases: " + ", ".join(str(p) for p in files))
     return 0
 
 
