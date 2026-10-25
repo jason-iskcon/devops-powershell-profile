@@ -1,155 +1,76 @@
 # Git and Terraform aliases
 
-**PowerShell only.** These aliases are not available in bash or zsh (see [Shell differences](shells.md)).
-The Git aliases come from the [`git-aliases`](https://github.com/gluons/powershell-git-aliases) module, which the profile imports; the
-Terraform aliases are defined in `Microsoft.Powershell_profile.ps1`.
+**PowerShell only.** Bash and Zsh get the kubectl aliases only (see
+[Shell differences](shells.md)). The Git aliases come from the
+[`git-aliases`](https://github.com/gluons/powershell-git-aliases) module, which the profile
+imports; the Terraform aliases are defined in `Microsoft.Powershell_profile.ps1`.
 
-> **⚠️ Important:** These aliases use a **layered learning approach**. Start with Tier 1, master those, then move to Tier 2. Don't try to memorize everything at once!
+## Git - The "G" System
 
-## Git - The "G" System 📝
+Every Git alias starts with `g`, followed by the first letter of the command and, where two
+commands clash, a distinguishing letter or two.
 
-**Base Rule:** All git aliases start with `g` (for **G**it)
+```text
+Daily workflow
+ga      - git add
+gaa     - git add --all              aa = "all"
+gcmsg   - git commit -m              commit + message
+gp      - git push
+gl      - git pull                   pu-l-l: p was taken by push
 
-**Abbreviation Strategy:** First letter of command + distinctive consonant when needed
+Branches
+gco     - git checkout
+gcb     - git checkout -b            checkout + branch
+gbr     - git branch
+gbd     - git branch -d              branch + delete
 
-### Tier 1: Essential Daily Commands (Memorize These First!)
+Diff and stash
+gd      - git diff
+gds     - git diff --staged
+gst     - git stash
+gsta    - git stash apply
+gstd    - git stash drop
 
-**The Daily Workflow Story:** "**A**dd ingredients, **C**ook meal, **P**late it, **P**our drinks for **L**unch"
-
+Other
+gcl     - git clone
+glog    - git log                    the whole word, because gl is pull
+gsh     - git show
 ```
-ga      - git add                    (G + A = Add)
-gaa     - git add --all              (double A = "all")
-gcmsg   - git commit -m              (G + Commit + MeSsaGe)
-gp      - git push                   (G + P = Push)
-gl      - git pull                   (G + L = puLl - last letter to avoid conflict)
-```
 
-**⚠️ Note:** `gl` means **pull** (not log). Think "pu**L**l" uses the last letter. For log, use `glog` (full word to avoid confusion).
+A typical change:
 
-**Daily Practice Drill:**
 ```powershell
-ga .                    # Add files
-gcmsg "fix bug"         # Commit with message
-gp                      # Push changes
-gl                      # Pull latest
+gcb fix-login           # new branch
+ga .                    # stage everything
+gcmsg "Fix login"       # commit
+gp                      # push
 ```
 
-<details>
-<summary><strong>▶ Tier 2: Branching & Navigation</strong> (Click to expand)</summary>
+The `git-aliases` module defines many more; `Get-Command g*` lists them. Only the 17 above
+are documented and tested here.
 
-**Pattern:** Action + Object initial letters
+## Terraform - The "T" System
 
-```
-gco     - git checkout               (G + CheckOut)
-gcb     - git checkout -b            (G + Checkout Branch)
-gbr     - git branch                 (G + BRanch)
-gbd     - git branch -d              (G + Branch Delete)
-```
+`t` plus the first letter of the command.
 
-</details>
-
-<details>
-<summary><strong>▶ Tier 3: Diff & Stash</strong> (Click to expand)</summary>
-
-```
-gd      - git diff                   (G + Diff)
-gds     - git diff --staged          (G + Diff Staged)
-gst     - git stash                  (G + STash)
-gsta    - git stash apply            (G + STash Apply)
-gstd    - git stash drop             (G + STash Drop)
+```text
+ti      terraform init
+tp      terraform plan
+ta      terraform apply --auto-approve
+td      terraform destroy
+tv      terraform validate
+tfmt    terraform fmt
+tpt     terraform plan -target=<address>
+tat     terraform apply -target=<address> --auto-approve
 ```
 
-</details>
+> **Warning:** `ta` and `tat` apply **without asking for confirmation**. Type
+> `terraform apply` when you want the prompt. `td` destroys infrastructure (Terraform still
+> asks you to confirm).
 
-<details>
-<summary><strong>▶ Tier 4: Advanced Commands</strong> (Click to expand)</summary>
-
-```
-gcl     - git clone                  (G + CLone)
-glog    - git log                    (G + LOG - full word to avoid confusion with pull)
-gsh     - git show                   (G + SHow)
-```
-
-</details>
-
-**⚠️ Why `glog` not `glo`?** Since `gl` = pull (last letter), we use the full word `glog` to clearly distinguish log from pull.
-
-## Git Conflict Resolution Rules
-
-When abbreviations collide, we use these rules:
-
-1. **First letter wins** for most common command
-   - `gp` = push (more common than pull)
-   - `gl` = pull (uses last letter to avoid conflict)
-
-2. **Add distinctive consonant** for less common
-   - `glog` = log (adds 'og' to distinguish from pull)
-
-3. **Double letters** for "all" modifier
-   - `gaa` = add all (double A pattern)
-
-## Git Quick Reference
-
-```
-┌─────────────────────────────────────────┐
-│ ESSENTIAL DAILY WORKFLOW                │
-├─────────────────────────────────────────┤
-│ ga .          → Add files               │
-│ gcmsg "msg"   → Commit with message     │
-│ gp            → Push changes            │
-│ gl            → Pull latest             │
-└─────────────────────────────────────────┘
-
-┌─────────────────────────────────────────┐
-│ BRANCHING                               │
-├─────────────────────────────────────────┤
-│ gcb name     → Create & checkout branch │
-│ gco name     → Checkout existing branch │
-│ gbr          → List branches            │
-│ gbd name     → Delete branch            │
-└─────────────────────────────────────────┘
-```
-
-> **Note:** The `git-aliases` module provides many more aliases. Run `Get-Command g*` to see all available git aliases.
-
-## Terraform - The "T" System 🏗️
-
-**Pattern:** Terraform + first letter of action
-
-**The Workflow Story:** "**I**nitialize, **P**lan ahead, **A**pply changes, **D**estroy when done"
-
-### Essential Commands
-
-```
-ti      - terraform init             (Terraform Init)
-tp      - terraform plan             (Terraform Plan)
-ta      - terraform apply            (Terraform Apply --auto-approve)
-td      - terraform destroy          (Terraform Destroy)
-tv      - terraform validate         (Terraform Validate)
-tfmt    - terraform fmt              (Terraform ForMaT)
-```
-
-### With Target Flags
-
-```
-tpt     - terraform plan -target=   (Plan with Target)
-tat     - terraform apply -target= --auto-approve  (Apply with Target)
-```
-
-**Daily Practice Drill:**
-```powershell
-ti                          # Initialize
-tp                          # Plan changes
-ta                          # Apply (with auto-approve)
-```
-
-**⚠️ ⚠️ ⚠️ SAFETY WARNING ⚠️ ⚠️ ⚠️**
-
-> **`ta` includes `--auto-approve`** - This will apply changes WITHOUT confirmation!
-> 
-> **Use `terraform apply` (full command) when you need confirmation prompts.**
-> 
-> **`td` (terraform destroy) is also destructive - use with extreme caution!**
+`ti`, `tp`, `ta`, `td`, `tv` and `tfmt` take no arguments: anything typed after them is
+ignored. Use the full command (or `tf`, below) when you need flags. `tpt` and `tat` take the
+target address: `tpt module.web`.
 
 ## Other PowerShell helpers
 

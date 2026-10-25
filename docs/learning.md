@@ -1,237 +1,109 @@
 # Learning the aliases
 
-## Why Learn This System?
+The aliases are built from a few letters that combine, so you learn a pattern rather than a
+list. Start small: a handful of verbs, then resources, then modifiers.
 
-**The Problem:** Typing long commands is slow and error-prone.
+| Command | Characters | Alias | Characters saved |
+|---|---|---|---|
+| `kubectl get pods --all-namespaces -o yaml` | 41 | `kgpaay` (6) | 85% |
+| `git commit -m "message"` | 23 | `gcmsg "message"` (15) | 35% |
+| `terraform apply --auto-approve` | 30 | `ta` (2) | 93% |
 
-**The Solution:** Short, memorable aliases that cut most of the typing.
+- [Workflow examples](#workflow-examples)
+- [A four-week plan](#a-four-week-plan)
+- [Quiz, Anki and review](#quiz-anki-and-review)
+- [When not to use aliases](#when-not-to-use-aliases)
+- [Usage tracking](#usage-tracking)
 
-**Real Impact:**
+## Workflow examples
 
-| Command | Before | After | Reduction |
-|---------|--------|-------|-----------|
-| `kubectl get pods --all-namespaces -o yaml` | 41 chars | `kgpaay` (6 chars) | **85%** |
-| `git commit -m "message"` | 23 chars | `gcmsg "message"` (15 chars) | **35%** |
-| `terraform apply --auto-approve` | 30 chars | `ta` (2 chars) | **93%** |
+**Debug a failing pod** (any shell). Work down from the cheapest look to the most detail:
 
-**Learning Curve:** Master the Tier 1 commands in Week 1, and you'll see immediate productivity gains.
-
-## Common Workflow Cards 🎴
-
-The Git and Terraform steps need the PowerShell profile; the kubectl steps work in every supported shell.
-
-### 🔧 Debug a Failing Pod
-
-```powershell
-kgp                         # 1. Find the pod
-kd pod/failing-pod          # 2. Describe it
-kl pod/failing-pod          # 3. Check logs
-kgpy pod/failing-pod        # 4. Get full YAML config
+```sh
+kgp                         # 1. find the pod
+kd pod/failing-pod          # 2. describe it: events, restarts, image
+kl pod/failing-pod          # 3. follow its logs
+klp pod/failing-pod         # 4. logs of the previous container, if it restarted
+kgpy pod/failing-pod        # 5. the full YAML
 ```
 
-### 🚀 Deploy New Feature
+**Check cluster health** (any shell):
 
-```powershell
-gcb feature-xyz             # 1. Create branch
-ga .                        # 2. Add changes
-gcmsg "Add feature xyz"     # 3. Commit
-tp                          # 4. Plan terraform
-ta                          # 5. Apply terraform
-ka deploy.yaml              # 6. Apply k8s manifest (ka already includes --recursive -f)
-kgpw                        # 7. Watch pods deploy
-gp                          # 8. Push code
+```sh
+kgno                        # nodes
+kgpaa                       # pods in every namespace
+kgsv                        # services
+kgi                         # ingress
 ```
 
-### 🔍 Check Cluster Health
+**Ship a change** (PowerShell, because it uses the Git and Terraform aliases):
 
 ```powershell
-kgno                        # Check nodes
-kgpaa                       # Check all pods
-kgsv                        # Check services
-kgi                         # Check ingress
+gcb feature-xyz             # 1. create a branch
+ga .                        # 2. stage changes
+gcmsg "Add feature xyz"     # 3. commit
+tp                          # 4. plan Terraform
+ta                          # 5. apply Terraform (no confirmation prompt)
+ka deploy.yaml              # 6. apply the manifest (ka includes --recursive -f)
+kgpw                        # 7. watch the pods roll out
+gp                          # 8. push
 ```
 
-## Learning Path with Checkpoints
+## A four-week plan
 
-### Week 1: Git Basics ✓
+Each week, use the new aliases in your real work until you stop reaching for the full
+command.
 
-(PowerShell only. In bash or zsh, start with Week 2.)
+| Week | Learn | Practise | You're ready to move on when |
+|---|---|---|---|
+| 1 | Git: `ga`, `gcmsg`, `gp`, `gl` (PowerShell; in Bash/Zsh start at week 2) | five add → commit → push cycles | you can push without looking anything up |
+| 2 | Verbs: `kg`, `kd`, `kl` | `kg pods`, `kd pod/name`, `kl pod/name` | you check a pod's state without thinking |
+| 3 | Formats: `y`, `o`, `w` | `kgpy`, `kgpo`, `kgpw` | YAML output is a reflex |
+| 4 | Modifiers: `aa`, `sl`, `z` | `kgpaa`, `kgpsl`, `kzgp`, `kgpaawy` | you can build an alias you've never used from the [pattern](kubectl.md#the-pattern) |
 
-**Goals:**
-- [ ] Type `ga`, `gcmsg`, `gp`, `gl` without looking (50 times)
-- [ ] Complete 5 full workflows: add → commit → push
-- [ ] **Checkpoint:** Can you push changes without referencing docs?
+## Quiz, Anki and review
 
-**Practice:**
+**Quiz** (PowerShell):
+
 ```powershell
-ga .                        # Add files
-gcmsg "practice commit"     # Commit
-gp                          # Push
-gl                          # Pull
+.\Test-Profile.ps1 -Quiz
 ```
 
-### Week 2: Kubectl Foundations ✓
-
-**Goals:**
-- [ ] Type `kg pods`, `kd pod/name`, `kl pod/name` 30 times each
-- [ ] Practice switching between get/describe/logs
-- [ ] **Checkpoint:** Can you check pod status without thinking?
-
-**Practice:**
-```powershell
-kg pods                     # Get pods
-kd pod/my-pod               # Describe pod
-kl pod/my-pod               # Logs from pod
-```
-
-### Week 3: Output Formats ✓
-
-**Goals:**
-- [ ] Add `y`, `o`, `w` to your existing commands
-- [ ] Practice `kgpy`, `kgpw`, `kgpo` 20 times
-- [ ] **Checkpoint:** Can you get YAML output reflexively?
-
-**Practice:**
-```powershell
-kgpy pod/my-pod             # Get pod yaml
-kgpw                        # Watch pods
-kgpo                        # Get pods wide
-```
-
-### Week 4: Advanced Combinations ✓
-
-**Goals:**
-- [ ] Learn `aa`, `sl`, `z` modifiers
-- [ ] Practice complex chains: `kzgpaay`
-- [ ] **Checkpoint:** Can you construct any command from memory?
-
-**Practice:**
-```powershell
-kgpaa                       # Get pods all namespaces
-kgpsl                       # Get pods show-labels
-kzgp                        # Get pods in kube-system
-```
-
-## Memory Reinforcement
-
-### Spaced Repetition with Anki
-
-Export aliases to Anki for spaced repetition learning (needs PowerShell):
+**Anki flashcards.** `Export-Anki.ps1` writes `aliases-anki.csv` with 27 cards covering the
+core Git, Terraform and kubectl aliases. It needs PowerShell (`pwsh` works on Linux and macOS
+too), and the CSV is useful whichever shell you use the aliases in.
 
 ```powershell
 .\Export-Anki.ps1
 ```
 
-This generates `aliases-anki.csv` that you can import into Anki. The export includes:
-- Front: Full command (e.g., "git pull")
-- Back: Alias (e.g., "gl")
-- Category: Tier/System
-- Mnemonic: Memory aid
+Each card has a Front (the full command, e.g. `git pull`), a Back (the alias, `gl`), a
+Category (system and tier) and a Mnemonic. To import: in Anki choose **File → Import**, select
+`aliases-anki.csv`, set the field separator to comma and map Front and Back. A custom note
+type with Category and Mnemonic fields keeps the extra columns.
 
-**Import into Anki:**
-1. Open Anki → File → Import
-2. Select `aliases-anki.csv`
-3. Field separator: Comma
-4. Map Front → Front, Back → Back
-5. Import!
+**Review schedule.** If you are not using Anki, review on day 1, 3, 7, 14 and 30 after first
+learning a tier.
 
-**Pro tip:** Create a custom note type with Category and Mnemonic fields for better organization.
+## When not to use aliases
 
-### Review Schedule
+Use aliases in your own interactive terminal. Write the full command anywhere someone else
+(or a machine) will read or run it: documentation, scripts, runbooks and CI pipelines. Other
+people and CI runners won't have these aliases, and full commands give clearer errors.
 
-**Spaced Repetition Schedule:**
+```sh
+kubectl get pods | grep Running     # in a script or a doc
+kgp | grep Running                  # at your own prompt
+```
 
-Set calendar reminders to review:
+## Usage tracking
 
-- **Day 1:** After first learning session
-- **Day 3:** Review Tier 1 commands
-- **Day 7:** Review Tier 1 + 2
-- **Day 14:** Review all tiers
-- **Day 30:** Final review + advanced patterns
-
-**Pro tip:** Create a text file with random commands and practice typing them daily:
+PowerShell on Windows only, and off by default. When enabled, the profile logs each use of
+**`kgp`** (no other alias is tracked yet) to `%USERPROFILE%\.alias-usage.log`. Nothing leaves
+your machine.
 
 ```powershell
-# daily-practice.txt
-kgp
-kd pod/
-kgpy
-gcmsg ""
-ga .
-gp
-```
-
-## Visual Memory Aids
-
-### Git Flow Diagram
-
-```
-  ga → gcmsg → gp → gl
-  📥    💬      ⬆️    ⬇️
- Add   Commit  Push  Pull
-```
-
-### Kubectl Verb Hierarchy
-
-```
-     kg (get) ────→ Most common, start here
-      ↓
-     kd (describe) → Need details? Describe
-      ↓
-     kl (logs) ────→ Still broken? Check logs
-      ↓
-     kx (delete) ──→ Last resort: delete
-```
-
-## When NOT to Use Aliases
-
-**❌ In documentation/scripts shared with others**
-
-```powershell
-# Bad (others may not have your aliases)
-kgp | grep Running
-
-# Good (explicit, portable)
-kubectl get pods | grep Running
-```
-
-**❌ In CI/CD pipelines**
-
-- Aliases may not exist in CI environment
-- Explicit commands are more maintainable
-- Better error messages with full commands
-
-**✅ In interactive terminal sessions**
-
-- Perfect for daily work
-- Speed up your workflow
-- Reduce typing fatigue
-- Increase productivity
-
-## Usage Tracking (Optional)
-
-PowerShell only. When enabled, the profile logs each use of **`kgp`**; no other alias is
-tracked yet. The log is `%USERPROFILE%\.alias-usage.log`, so this works on Windows only.
-
-**Enable tracking:**
-```powershell
-$env:TRACK_ALIAS_USAGE = "true"
-. $PROFILE  # Reload profile
-```
-
-**View usage stats:**
-```powershell
-# View log file
+$env:TRACK_ALIAS_USAGE = "true"; . $PROFILE       # enable
 Get-Content $env:USERPROFILE\.alias-usage.log | Select-Object -Last 20
-
-# Count most used aliases
-Get-Content $env:USERPROFILE\.alias-usage.log | ForEach-Object { ($_ -split '\|')[1] } | Group-Object | Sort-Object Count -Descending | Select-Object -First 10
+$env:TRACK_ALIAS_USAGE = "false"; . $PROFILE      # disable
 ```
-
-**Disable tracking:**
-```powershell
-$env:TRACK_ALIAS_USAGE = "false"
-. $PROFILE
-```
-
-> **Note:** Tracking is disabled by default for privacy. Data is stored locally in `%USERPROFILE%\.alias-usage.log`.

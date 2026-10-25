@@ -1,176 +1,145 @@
-# Kubectl - The "K" System 🎯
+# Kubectl aliases (the K system)
 
-The K system works the same in PowerShell, bash and zsh (see [Shell differences](shells.md)).
+The 788 kubectl aliases work the same in PowerShell, Bash and Zsh: same names, same
+expansions. Each one runs kubectl with fixed arguments followed by whatever you type, so
+`kgp my-pod -o=name` is `kubectl get pods my-pod -o=name`. They are generated from
+[`k-grammar.toml`](../k-grammar.toml). For how the shells differ, see
+[Shell differences](shells.md).
 
-> **⚠️ Important:** These aliases use a **layered learning approach**. Start with Tier 1, master those, then move to Tier 2. Don't try to memorize everything at once!
+Learn the pattern rather than the list: start with the verbs, add a resource, then add
+modifiers as you need them.
 
-**Base:** `k` = kubectl (first letter)
+- [The pattern](#the-pattern)
+- [Verbs](#verbs)
+- [Resources](#resources)
+- [Modifiers](#modifiers)
+- [Other kubectl aliases](#other-kubectl-aliases)
+- [Conflict rules](#conflict-rules)
+- [Quick reference](#quick-reference)
 
-**⚠️ Important Notes:**
-- Some aliases use arbitrary choices (like `z` for system, `x` for delete) - these are documented exceptions
-- Resource abbreviations vary: some use first letter (`p`), some use first two (`de`), some use middle letters (`sv`)
-- Learn the pattern, not every combination
+## The pattern
 
-### Tier 1: Essential Verbs (Memorize These First!)
+```text
+k + [z] + verb + [resource] + [modifiers]
 
-**The K8s Workflow Story:** "**G**et info, **D**escribe details, **A**pply fixes, **L**ook at logs"
-
-```
-kg      - kubectl get                (K + Get)
-kd      - kubectl describe           (K + Describe)
-kx      - kubectl delete             (K + eXterminate - exception!)
-ka      - kubectl apply --recursive -f   (K + Apply; pass a path: ka deploy.yaml)
-kl      - kubectl logs -f            (K + Logs; always follows)
-ke      - kubectl exec -i -t         (K + Exec)
-```
-
-**⚠️ ⚠️ ⚠️ DESTRUCTIVE COMMAND ⚠️ ⚠️ ⚠️**
-
-> **`kx` = delete (not `d` because `d` is describe). Think "e**X**terminate".**
-> 
-> **This permanently deletes resources! Always double-check before using.**
-
-<details>
-<summary><strong>▶ Tier 2: Common Resources</strong> (Click to expand)</summary>
-
-**Pattern:** Mixed strategies (first letter OR first two letters OR distinctive pattern)
-
-```
-p       - pods                       (first letter)
-de      - deployment                (first two - avoids conflict with describe)
-i       - ingress                   (first letter)
-sv      - service                   (S + V = serVice - distinctive consonants)
-c       - configmap                 (first letter)
-se      - secret                    (S + E = sEcret - first letter + second vowel)
-n       - namespace                 (first letter)
-no      - node                      (first two: NOde)
+k  + g + p              = kgp       kubectl get pods
+k  + z + g + p          = kzgp      kubectl --namespace=kube-system get pods
+k  + g + p + y          = kgpy      kubectl get pods -o=yaml
+k  + g + p + w          = kgpw      kubectl get pods --watch
+k  + g + p + aa         = kgpaa     kubectl get pods --all-namespaces
+k  + g + p + aa + w + y = kgpaawy   kubectl get pods --all-namespaces --watch -o=yaml
+k  + d + p              = kdp       kubectl describe pods
+k  + x + p              = kxp       kubectl delete pods
+k  + g + de + y         = kgdey     kubectl get deployment -o=yaml
 ```
 
-**⚠️ Why the inconsistency?** 
-- `d` is already used for "describe", so deployment uses `de` (first two letters)
-- `s` would conflict with "secret", so service uses `sv` (S + V = distinctive consonants)
-- Most others use first letter(s) when no conflict exists
+The order is always verb, then resource, then modifiers. Not every combination exists: the
+grammar records the aliases that grew over time rather than every possible mix, and
+modifiers have a fixed order (see [Modifiers](#modifiers)). With no resource, the verb
+applies to whatever you pass: `kg pods`, `kd pod/my-pod`.
 
-</details>
+## Verbs
 
-<details>
-<summary><strong>▶ Tier 3: Output Formats & Flags</strong> (Click to expand)</summary>
-
-```
-y       - yaml output               (Y = Yaml)
-j       - json output               (J = Json)
-o       - wide output               (O = Output-wide)
-aa      - all-namespaces (delete: --all)  (double A = "all")
-w       - watch                     (W = Watch)
-sl      - show-labels               (Show Labels)
+```text
+kg      kubectl get
+kd      kubectl describe
+kx      kubectl delete              x for "exterminate", because d is describe
+ka      kubectl apply --recursive -f     pass a path: ka deploy.yaml
+kl      kubectl logs -f             always follows
+ke      kubectl exec -i -t
 ```
 
-</details>
+Only `g`, `d` and `x` combine with resources and modifiers. `ka`, `kl` and `ke` are
+standalone; see [Other kubectl aliases](#other-kubectl-aliases) for their variants.
 
-<details>
-<summary><strong>▶ Tier 4: System Namespace</strong> (Click to expand)</summary>
+> **Warning:** every alias that starts with `kx` deletes. `kx…aa` deletes *all* resources of
+> that type in the current namespace (`kxpaa` is `kubectl delete pods --all`).
 
-```
-z       - kube-system namespace      (Z = "zone zero" - the system zone where k8s lives)
-```
+## Resources
 
-**⚠️ Exception:** `z` is a mnemonic for "zone zero" - think of kube-system as the special system zone. This is a documented exception to the normal abbreviation rules.
-
-</details>
-
-## Kubectl Pattern Formula
-
-**Pattern:** `k + [system] + verb + resource + [format] + [flags]`
-
-**Structure:**
-```
-k + [z] + verb + resource + [y|j|o] + [w|aa|sl]
-└─ required ─┘ └────────── optional ──────────┘
+```text
+p       pods                first letter
+de      deployment          first two letters, because d is describe
+sv      service             s + v, because se is secret
+i       ingress
+c       configmap
+se      secret
+no      nodes               get and describe only
+n, ns   namespaces          kgn; ns is used where n would clash (kgnso, below)
 ```
 
-**Examples:**
-```
-k  + g  + p        = kgp          (get pods)
-k  + z + g  + p    = kzgp         (get pods in kube-system)
-k  + g  + p  + y   = kgpy         (get pods as yaml)
-k  + g  + p  + w   = kgpw         (get pods watch)
-k  + g  + p  + aa  = kgpaa        (get pods all namespaces)
-k  + d  + p        = kdp          (describe pods)
-k  + x  + p        = kxp          (delete pods)
-k  + g  + de + y   = kgdey        (get deployment yaml)
-```
+`z` before the verb runs the command in `kube-system`: `kzgp`, `kzdp`, `kzxp`. Think "zone
+zero", where the system lives.
 
-## Kubectl Conflict Resolution Rules
+## Modifiers
 
-1. **First letter wins** for most common
-   - `d` = describe (more common than delete)
-   - `x` = delete (exception: uses X for "exterminate")
-
-2. **Add letters** when conflict exists
-   - `de` = deployment (avoids conflict with describe)
-   - `sv` = service (avoids conflict with secret)
-
-3. **Double letters** for "all" modifier
-   - `aa` = `--all-namespaces` with `get`/`describe`
-   - `aa` = `--all` with `x` (delete): `kxpaa` = `kubectl delete pods --all`, which deletes every pod in the **current** namespace. Treat any `kx…aa` alias as destructive.
-
-4. **Long forms** are synonyms: `kgpaaoyaml` = `kgpaay`, and likewise `owide`/`ojson` and `all` (for `aa`)
-
-5. **`n` means two things**: as a resource, `n` is namespaces (`kgn`); as a trailing flag it is `--namespace` (`kgpn`). `kgno` is nodes, so namespaces with wide output is `kgnso`/`kgnsoall`.
-
-## Kubectl Quick Reference
-
-```
-┌─────────────────────────────────────────┐
-│ ESSENTIAL DAILY COMMANDS                │
-├─────────────────────────────────────────┤
-│ kg pods          → Get pods             │
-│ kd pod/name      → Describe pod         │
-│ kl pod/name      → Logs from pod        │
-│ ke pod/name      → Exec into pod        │
-│ kx pod name      → Delete pod           │
-└─────────────────────────────────────────┘
-
-┌─────────────────────────────────────────┐
-│ COMMON RESOURCES                        │
-├─────────────────────────────────────────┤
-│ kgp      - get pods                     │
-│ kgde     - get deployments              │
-│ kgsv     - get services                 │
-│ kgi      - get ingress                  │
-│ kgc      - get configmaps               │
-│ kgse     - get secrets                  │
-│ kgn      - get namespaces               │
-│ kgno     - get nodes                    │
-└─────────────────────────────────────────┘
-
-┌─────────────────────────────────────────┐
-│ OUTPUT FORMATS                          │
-├─────────────────────────────────────────┤
-│ kgpy     - get pods yaml                │
-│ kgpj     - get pods json                │
-│ kgpo     - get pods wide                │
-└─────────────────────────────────────────┘
-
-┌─────────────────────────────────────────┐
-│ MODIFIERS                               │
-├─────────────────────────────────────────┤
-│ kgpw     - get pods watch               │
-│ kgpaa    - get pods all namespaces      │
-│ kgpsl    - get pods show-labels         │
-│ kzgp     - get pods (kube-system)       │
-└─────────────────────────────────────────┘
+```text
+aa      --all-namespaces    with delete: --all (destructive)
+w       --watch
+y       -o=yaml
+j       -o=json
+o       -o=wide
+sl      --show-labels
+l       -l                  selector: kgpl app=web
+n       --namespace         kgpn my-namespace
+f       --recursive -f      get, describe and delete with no resource: kgf manifests/
 ```
 
-## Anti-Patterns ⚠️
+Modifiers go in this order: `aa`, then `w`, then a format (`y`, `j` or `o`), then `l` or `n`.
+So `kgpwy` exists and `kgpyw` does not. `sl` can sit in most positions (`kgposl` and
+`kgpslo` both exist), and `l`, `n` and `f` always come last because they take a value.
 
-**❌ DON'T:**
-- Chain random letters hoping they work
-- Mix verb and resource order (it's always verb then resource)
-- Use `d` for delete (use `x` instead)
+Long forms are synonyms: `oyaml`, `owide` and `ojson` for the formats (after `aa`, as in
+`kgpaaoyaml`), and `all` for `aa`, placed after `w` or a format (`kgpwall`, `kgpoall`).
 
-**✅ DO:**
-- Build from verb + resource pattern
-- Start with Tier 1 commands, master those first
-- Use `k` + verb + resource as the base pattern
-- Add modifiers (output, flags) after the resource
+## Other kubectl aliases
+
+These do not follow the pattern:
+
+```text
+k       kubectl
+kak     kubectl apply -k
+kk      kubectl kustomize
+kln     kubectl logs -f --namespace
+klp     kubectl logs -f -p            previous container
+ken     kubectl exec -i -t --namespace
+kp      kubectl proxy
+kpf     kubectl port-forward
+kpfn    kubectl port-forward --namespace
+krun    kubectl run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t
+kz      kubectl --namespace=kube-system
+kza, kze, kzl, kzlp, kzrun       the same as ka, ke, kl, klp and krun, in kube-system
+```
+
+## Conflict rules
+
+1. **The most common command gets the first letter.** `d` is describe, so delete is `x`.
+2. **Add letters when two names clash.** `de` is deployment (not `d`), `sv` is service (not
+   `s`, next to secret).
+3. **`aa` means "all".** With `get` and `describe` it is `--all-namespaces`; with delete it is
+   `--all`, which deletes every resource of that type in the **current** namespace. Treat any
+   `kx…aa` alias as destructive.
+4. **`n` means two things.** As a resource it is namespaces (`kgn`); as a trailing modifier it
+   is `--namespace` (`kgpn`). `kgno` is nodes, so namespaces with wide output is `kgnso` (and
+   `kgnsoall`).
+
+## Quick reference
+
+```text
+Daily
+  kg pods            get pods
+  kd pod/name        describe a pod
+  kl pod/name        follow a pod's logs
+  ke pod/name -- sh  exec into a pod
+  kx pod name        delete a pod
+
+Resources                       Output and modifiers
+  kgp    get pods                 kgpy    pods as yaml
+  kgde   get deployments          kgpj    pods as json
+  kgsv   get services             kgpo    pods, wide
+  kgi    get ingress              kgpw    watch pods
+  kgc    get configmaps           kgpaa   pods in all namespaces
+  kgse   get secrets              kgpsl   pods with labels
+  kgn    get namespaces           kzgp    pods in kube-system
+  kgno   get nodes
+```
