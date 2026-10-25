@@ -233,12 +233,14 @@ foreach ($alias in $kubectlOutputs) {
 # ============================================
 # Kubectl Expansion Tests (all aliases)
 # ============================================
-# tests/k-aliases.tsv is the reference list: <name><TAB><kubectl arguments>.
+# tests/k-aliases.tsv and tests/k-additions.tsv are the reference lists: <name><TAB><kubectl arguments>.
 # Each k* function body must be exactly "& kubectl <arguments> $args".
-Write-Host "`n--- Testing Kubectl Expansions (tests/k-aliases.tsv) ---" -ForegroundColor Cyan
+Write-Host "`n--- Testing Kubectl Expansions (tests/k-aliases.tsv, tests/k-additions.tsv) ---" -ForegroundColor Cyan
 
-$manifestPath = Join-Path $PSScriptRoot "tests/k-aliases.tsv"
-$manifest = Get-Content $manifestPath | Where-Object { $_ -ne "" }
+# k-aliases.tsv is frozen (the original aliases); k-additions.tsv lists aliases added since.
+$manifest = foreach ($file in "k-aliases.tsv", "k-additions.tsv") {
+    Get-Content (Join-Path $PSScriptRoot "tests/$file") | Where-Object { $_ -ne "" -and -not $_.StartsWith("#") }
+}
 
 foreach ($line in $manifest) {
     $name, $kubectlArgs = $line -split "`t", 2
@@ -272,7 +274,7 @@ foreach ($dup in $duplicates) {
 }
 $extra = $definedNames | Sort-Object -Unique | Where-Object { $_ -notin ($manifest | ForEach-Object { ($_ -split "`t")[0] }) }
 foreach ($name in $extra) {
-    $extraResult = @{ Name = $name; Category = "Kubectl-Unlisted"; Exists = $false; Error = "Defined in profile but missing from tests/k-aliases.tsv" }
+    $extraResult = @{ Name = $name; Category = "Kubectl-Unlisted"; Exists = $false; Error = "Defined in k-aliases.ps1 but missing from tests/k-aliases.tsv and tests/k-additions.tsv" }
     $script:TestResults += $extraResult
     $script:FailedTests += $extraResult
 }
